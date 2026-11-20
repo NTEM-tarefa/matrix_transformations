@@ -1,5 +1,5 @@
 """
-Que matrizes movem o plano?
+Como se move o triângulo?
 Tarefa exploratória sobre transformações no plano com matrizes (Streamlit).
 
 Executar:  streamlit run app.py
