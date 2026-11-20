@@ -6,7 +6,7 @@ Executar:  streamlit run app.py
 """
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 import streamlit as st
 
 st.set_page_config(page_title="Como se move o triângulo?", page_icon="📐", layout="wide")
@@ -23,7 +23,8 @@ CORES = ["tab:blue", "tab:red", "tab:green", "tab:orange"]
 
 def desenhar(figuras, nomes, alvo=None, lim=8):
     """Devolve uma figura matplotlib com os polígonos (matrizes 2×n, colunas = vértices)."""
-    fig, ax = plt.subplots(figsize=(5.5, 5.5))
+    fig = Figure(figsize=(5.5, 5.5))  # Figure direto (sem pyplot): seguro com vários utilizadores em simultâneo
+    ax = fig.subplots()
     for i, (X, nome) in enumerate(zip(figuras, nomes)):
         xs, ys = np.append(X[0], X[0][0]), np.append(X[1], X[1][0])
         ax.fill(xs, ys, alpha=0.2, color=CORES[i % 4])
@@ -43,7 +44,6 @@ def desenhar(figuras, nomes, alvo=None, lim=8):
 
 def mostrar(fig):
     st.pyplot(fig)
-    plt.close(fig)
 
 
 def area(X):
@@ -424,7 +424,7 @@ with abas[6]:
                          disabled=["Tipo de transformação"])
 
     # Exportação em Markdown
-    md = ["# Caderno de bordo — Que matrizes movem o plano?", "", f"**Grupo:** {nomes_grupo}", "",
+    md = ["# Caderno de bordo — Como se move o triângulo?", "", f"**Grupo:** {nomes_grupo}", "",
           "## Momento 1", "", tabela_md(ed1), "",
           "## Momento 2", "", tabela_md(ed2), "",
           "## Momento 3 — Conjeturas", ""]
