@@ -1,4 +1,4 @@
-# Que matrizes movem o plano? (Streamlit)
+# Como se move o triângulo? (Streamlit)
 
 ## Executar localmente
 ```
