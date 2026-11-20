@@ -176,7 +176,7 @@ with st.sidebar:
     st.divider()
     modo_prof = st.checkbox("Modo professor (mostrar soluções)", value=False)
 
-st.title("Que matrizes movem o plano?")
+st.title("Como se move o triângulo?")
 st.caption("Tarefa exploratória · pares · cerca de 90 minutos")
 
 abas = st.tabs([
