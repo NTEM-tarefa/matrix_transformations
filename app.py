@@ -9,7 +9,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
 
-st.set_page_config(page_title="Que matrizes movem o plano?", page_icon="📐", layout="wide")
+st.set_page_config(page_title="Como se move o triângulo?", page_icon="📐", layout="wide")
 
 # --------------------------------------------------------------------------
 # Dados e funções auxiliares
