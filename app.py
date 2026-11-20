@@ -144,12 +144,13 @@ DESAFIOS = [
     {
         "titulo": "6. Rotações",
         "texto": (
-            "Roda a figura 90° em torno da origem (sentido contrário ao dos ponteiros do relógio). "
+            "Roda a figura em torno da origem. Aqui o que escolhes é o **ângulo de rotação** (em graus; "
+            "positivo = sentido contrário ao dos ponteiros do relógio). Começa por fazer coincidir a imagem com o alvo. "
             "Depois tenta **45°** e **−30°**: para esses não há alvo, usa as medições (ângulo, lados, área)."
         ),
         "alvo": np.array([[-1, -1, -3], [1, 4, 2]], dtype=float),
         "solucao": (
-            r"$M = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}$; em geral "
+            r"Ângulo de $90^\circ$, que dá $M = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}$; em geral "
             r"$\begin{bmatrix} \cos\alpha & -\sin\alpha \\ \sin\alpha & \cos\alpha \end{bmatrix}$ "
             r"(as colunas são as imagens de $(1,0)$ e $(0,1)$)."
         ),
@@ -258,7 +259,17 @@ with abas[2]:
 
     ce, cg = st.columns([1, 1.3])
     with ce:
-        M2, v2 = entrada_matriz(f"d{idx}")
+        if idx == 5:
+            # Desafio 6: o input é o ângulo de rotação; a app calcula M
+            ang = st.number_input("Ângulo de rotação α (graus)", value=0.0, step=5.0, key="d5_ang")
+            alfa = np.radians(ang)
+            M2 = np.round(np.array([[np.cos(alfa), -np.sin(alfa)],
+                                    [np.sin(alfa),  np.cos(alfa)]]), 4) + 0.0
+            v2 = np.zeros((2, 1))
+            st.markdown("Matriz $M$ calculada pela app:")
+            st.latex(latex_matriz(M2))
+        else:
+            M2, v2 = entrada_matriz(f"d{idx}")
     with cg:
         T2 = M2 @ T + v2
         mostrar(desenhar([T, T2], ["original", "imagem"], alvo=d["alvo"]))
@@ -276,9 +287,10 @@ with abas[2]:
         st.divider()
         st.subheader("Pergunta de pesquisa (à escolha do grupo)")
         st.markdown(
-            "Para a rotação de 45°, as entradas de $M$ não são todas inteiras. **Como as descobriram?** "
-            "Haverá uma \"receita\" que sirva para qualquer ângulo?\n\n"
-            "*Sugestão:* observa para onde vão os pontos $(1,0)$ e $(0,1)$."
+            "A app calcula a matriz $M$ a partir do ângulo. Experimenta vários ângulos (0°, 30°, 45°, 90°, 180°, −30°…) "
+            "e observa $M$. **Que padrão encontras?** Consegues escrever $M$ em função do ângulo $\\alpha$, "
+            "isto é, haverá uma \"receita\" que sirva para qualquer ângulo?\n\n"
+            "*Sugestão:* observa para onde vão os pontos $(1,0)$ e $(0,1)$ (e compara com as colunas de $M$)."
         )
         e1, e2 = np.array([1.0, 0.0]), np.array([0.0, 1.0])
         st.latex(
