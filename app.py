@@ -14,8 +14,8 @@ st.set_page_config(page_title="Como se move o triângulo?", page_icon="📐", la
 # --------------------------------------------------------------------------
 # Dados e funções auxiliares
 # --------------------------------------------------------------------------
-# Polígono de partida: cada COLUNA é um vértice (x; y) -> A(1,1), B(4,1), C(2,3)
-T = np.array([[1, 4, 2],
+# Matriz X dos vértices do polígono: a coluna i é o vértice x_i = (x_i; y_i) -> A(1,1), B(4,1), C(2,3)
+X = np.array([[1, 4, 2],
               [1, 1, 3]], dtype=float)
 
 CORES = ["tab:blue", "tab:red", "tab:green", "tab:orange"]
@@ -171,11 +171,12 @@ DESAFIOS = [
 with st.sidebar:
     st.header("📐 Transformações")
     st.markdown(
-        "Cada ponto $X = \\begin{bmatrix} x \\\\ y \\end{bmatrix}$ é transformado em\n\n"
-        "$$X' = M\\,X + v$$\n\n"
-        "com $M$ uma matriz 2×2 e $v$ uma matriz coluna."
+        "A matriz $X$ tem nas colunas os vértices do polígono: a coluna $i$, $\\mathbf{x}_i = \\begin{bmatrix} x_i \\\\ y_i \\end{bmatrix}$, "
+        "é transformada em\n\n"
+        "$$\\mathbf{x}_i' = M\\,\\mathbf{x}_i + \\mathbf{v}$$\n\n"
+        "com $M$ uma matriz 2×2 e $\\mathbf{v}$ uma matriz coluna."
     )
-    st.caption("O polígono de partida tem os vértices A(1,1), B(4,1) e C(2,3), guardados nas colunas de uma matriz.")
+    st.caption("O polígono de partida tem os vértices A(1,1), B(4,1) e C(2,3), guardados nas colunas da matriz $X$.")
     st.divider()
     modo_prof = st.checkbox("Modo professor (mostrar soluções)", value=False)
 
@@ -204,14 +205,18 @@ with abas[0]:
     c1, c2 = st.columns([1, 1])
     with c1:
         st.markdown("O polígono de partida, com **cada coluna a ser um vértice**:")
-        st.latex(r"T = " + rf"\begin{{bmatrix}} 1 & 4 & 2 \\ 1 & 1 & 3 \end{{bmatrix}}")
+        st.latex(
+            r"X = \begin{bmatrix} | & | & | \\ \mathbf{x}_1 & \mathbf{x}_2 & \mathbf{x}_3 \\ | & | & | \end{bmatrix}"
+            r" = \begin{bmatrix} 1 & 4 & 2 \\ 1 & 1 & 3 \end{bmatrix}"
+        )
         st.markdown(
-            "- A 1.ª coluna é o ponto $A(1,1)$, a 2.ª é $B(4,1)$ e a 3.ª é $C(2,3)$.\n"
+            "- A coluna $\\mathbf{x}_1 = (1,1)$ é o ponto $A$, a coluna $\\mathbf{x}_2 = (4,1)$ é o ponto $B$ "
+            "e a coluna $\\mathbf{x}_3 = (2,3)$ é o ponto $C$.\n"
             "- Dá-se o nome de **imagem** à figura que resulta de aplicar a transformação.\n"
             "- A aplicação mede também **área**, **lados** e **ângulos**, para testares as tuas conjeturas."
         )
     with c2:
-        mostrar(desenhar([T], ["original"]))
+        mostrar(desenhar([X], ["original"]))
 
 # --------------------------------------------------------------------------
 # Momento 1
@@ -221,7 +226,7 @@ with abas[1]:
     st.markdown(
         "Esta é a tua \"máquina\" de transformar figuras:"
     )
-    st.latex(r"X' = M\,X + v, \qquad M = \begin{bmatrix} p & q \\ r & s \end{bmatrix}, \quad v = \begin{bmatrix} a \\ b \end{bmatrix}")
+    st.latex(r"\mathbf{x}_i' = M\,\mathbf{x}_i + \mathbf{v}, \qquad M = \begin{bmatrix} p & q \\ r & s \end{bmatrix}, \quad \mathbf{v} = \begin{bmatrix} a \\ b \end{bmatrix}")
     st.markdown(
         "**Primeiro**, com $M$ igual à identidade, mexe **só** em $a$ e $b$. "
         "**Depois**, com $a = b = 0$, altera **um seletor de $M$ de cada vez**. "
@@ -239,10 +244,10 @@ with abas[1]:
         s = st.slider("s", -3.0, 3.0, 1.0, 0.1, key="m1_s")
         M1 = np.array([[p, q], [r, s]])
         v1 = np.array([[a], [b]])
-        st.latex(rf"M = {latex_matriz(M1)}, \quad v = {latex_coluna((a, b))}")
+        st.latex(rf"M = {latex_matriz(M1)}, \quad \mathbf{{v}} = {latex_coluna((a, b))}")
     with cg:
-        T1 = M1 @ T + v1
-        mostrar(desenhar([T, T1], ["original", "imagem"]))
+        X1 = M1 @ X + v1
+        mostrar(desenhar([X, X1], ["original", "imagem"]))
 
 # --------------------------------------------------------------------------
 # Momento 2
@@ -284,14 +289,14 @@ with abas[2]:
         else:
             M2, v2 = entrada_matriz(f"d{idx}")
     with cg:
-        T2 = M2 @ T + v2
-        mostrar(desenhar([T, T2], ["original", "imagem"], alvo=d["alvo"]))
+        X2 = M2 @ X + v2
+        mostrar(desenhar([X, X2], ["original", "imagem"], alvo=d["alvo"]))
         if d["alvo"] is not None:
-            if np.allclose(T2, d["alvo"]):
+            if np.allclose(X2, d["alvo"]):
                 st.success("✅ Coincide com o alvo!")
             else:
                 st.error("❌ Ainda não coincide com o alvo.")
-    mostrar_medidas(T, T2)
+    mostrar_medidas(X, X2)
 
     if modo_prof:
         st.info("**Solução:** " + d["solucao"])
@@ -326,7 +331,7 @@ with abas[3]:
         "- Quando é que a **área** da imagem é igual à da figura original? E quando é o dobro?\n"
         "- Quando é que os **comprimentos** e os **ângulos** se mantêm?\n"
         "- Que matrizes $M$ deixam a origem fixa? Há outros pontos fixos?\n"
-        "- A ordem importa? Compara $MX + v$ com $M(X + v)$ (abaixo).\n\n"
+        "- A ordem importa? Compara $M\\mathbf{x}_i + \\mathbf{v}$ com $M(\\mathbf{x}_i + \\mathbf{v})$ (abaixo).\n\n"
         "Para cada conjetura, escreve **como a testaste** e **se resistiu**. "
         "Procura um contraexemplo antes de a dares por boa."
     )
@@ -336,20 +341,20 @@ with abas[3]:
     with ce:
         M3, v3 = entrada_matriz("lab")
     with cg:
-        T3 = M3 @ T + v3
-        mostrar(desenhar([T, T3], ["original", "imagem"]))
-    mostrar_medidas(T, T3)
+        X3 = M3 @ X + v3
+        mostrar(desenhar([X, X3], ["original", "imagem"]))
+    mostrar_medidas(X, X3)
 
     st.divider()
-    st.subheader("A ordem importa?   MX + v   versus   M(X + v)")
+    st.subheader("A ordem importa?   $M\\mathbf{x}_i + \\mathbf{v}$   versus   $M(\\mathbf{x}_i + \\mathbf{v})$")
     ce, cg = st.columns([1, 1.3])
     with ce:
         Mo, vo = entrada_matriz("ord", M0=((0.0, -1.0), (1.0, 0.0)), v0=(2.0, 1.0))
     with cg:
-        T_a = Mo @ T + vo
-        T_b = Mo @ (T + vo)
-        mostrar(desenhar([T, T_a, T_b], ["original", "M·X + v", "M·(X + v)"]))
-        st.write("**As duas imagens são iguais?**", "Sim ✅" if np.allclose(T_a, T_b) else "Não ❌")
+        X_a = Mo @ X + vo
+        X_b = Mo @ (X + vo)
+        mostrar(desenhar([X, X_a, X_b], ["original", r"$M\mathbf{x}_i + \mathbf{v}$", r"$M(\mathbf{x}_i + \mathbf{v})$"]))
+        st.write("**As duas imagens são iguais?**", "Sim ✅" if np.allclose(X_a, X_b) else "Não ❌")
 
 # --------------------------------------------------------------------------
 # Momento 4
@@ -398,7 +403,7 @@ with abas[5]:
             "- A razão das áreas no scaling é $|k \\cdot l|$.\n"
             "- O cisalhamento conserva a área, mas não comprimentos nem ângulos.\n"
             "- A rotação conserva comprimentos, ângulos e área; a inversa de $R(\\alpha)$ é $R(-\\alpha)$.\n"
-            "- Em geral, $MX + v \\neq M(X + v)$."
+            "- Em geral, $M\\mathbf{x}_i + \\mathbf{v} \\neq M(\\mathbf{x}_i + \\mathbf{v})$."
         )
 
 # --------------------------------------------------------------------------
