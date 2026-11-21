@@ -29,6 +29,11 @@ def desenhar(figuras, nomes, alvo=None, lim=8):
         xs, ys = np.append(X[0], X[0][0]), np.append(X[1], X[1][0])
         ax.fill(xs, ys, alpha=0.2, color=CORES[i % 4])
         ax.plot(xs, ys, "o-", color=CORES[i % 4], label=nome)
+        # Rótulos dos vértices: A, B, C (original); A′, B′, C′ (1.ª imagem); A″, B″, C″ (2.ª imagem)...
+        sufixo = "′" * i if i < 3 else f"({i})"
+        for j in range(X.shape[1]):
+            ax.annotate(f"{chr(65 + j)}{sufixo}", (X[0][j], X[1][j]), textcoords="offset points",
+                        xytext=(7, 7), color=CORES[i % 4], fontsize=11, fontweight="bold")
     if alvo is not None:
         xs, ys = np.append(alvo[0], alvo[0][0]), np.append(alvo[1], alvo[1][0])
         ax.plot(xs, ys, "k--", label="alvo")
@@ -354,6 +359,7 @@ with abas[3]:
         X_a = Mo @ X + vo
         X_b = Mo @ (X + vo)
         mostrar(desenhar([X, X_a, X_b], ["original", r"$M\mathbf{x}_i + \mathbf{v}$", r"$M(\mathbf{x}_i + \mathbf{v})$"]))
+        st.caption("A′, B′, C′: imagem por $M\\mathbf{x}_i + \\mathbf{v}$ · A″, B″, C″: imagem por $M(\\mathbf{x}_i + \\mathbf{v})$")
         st.write("**As duas imagens são iguais?**", "Sim ✅" if np.allclose(X_a, X_b) else "Não ❌")
 
 # --------------------------------------------------------------------------
