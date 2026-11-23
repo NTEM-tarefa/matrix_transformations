@@ -409,7 +409,7 @@ def caderno(P, titulo, obs_linhas, desafios, sintese_perguntas, n_conj=2):
     """Caderno de bordo do módulo, com exportação em Markdown."""
     st.subheader("📓 Caderno de bordo do módulo")
     st.caption("O caderno fica guardado enquanto a página não for recarregada. Descarrega-o no fim.")
-    grupo = st.text_input("Nomes do grupo", key=f"{P}_grupo")
+    grupo = st.text_input("Nomes do grupo", key=f"{P}_cb_grupo")
 
     st.markdown("**Exploração**")
     df1 = pd.DataFrame({
@@ -431,13 +431,13 @@ def caderno(P, titulo, obs_linhas, desafios, sintese_perguntas, n_conj=2):
     conjeturas = []
     for i in range(1, n_conj + 1):
         with st.expander(f"Conjetura {i}", expanded=(i == 1)):
-            c = st.text_area("Quando [condição], a figura [efeito].", key=f"{P}_c{i}")
-            t = st.text_area("Como a testei (valores usados)", key=f"{P}_t{i}")
-            res = st.radio("Resistiu?", ["—", "Sim", "Não (contraexemplo)"], horizontal=True, key=f"{P}_r{i}")
+            c = st.text_area("Quando [condição], a figura [efeito].", key=f"{P}_cb_c{i}")
+            t = st.text_area("Como a testei (valores usados)", key=f"{P}_cb_t{i}")
+            res = st.radio("Resistiu?", ["—", "Sim", "Não (contraexemplo)"], horizontal=True, key=f"{P}_cb_r{i}")
             conjeturas.append((c, t, res))
 
     st.markdown("**Justificação**")
-    just = st.text_area("Conjetura escolhida e justificação com cálculo", key=f"{P}_just", height=140)
+    just = st.text_area("Conjetura escolhida e justificação com cálculo", key=f"{P}_cb_just", height=140)
 
     st.markdown("**Síntese do módulo**")
     df5 = pd.DataFrame({"Pergunta": sintese_perguntas, "A minha resposta": [""] * len(sintese_perguntas)})
@@ -451,7 +451,7 @@ def caderno(P, titulo, obs_linhas, desafios, sintese_perguntas, n_conj=2):
         md += [f"**Conjetura {i}:** {c}", "", f"- Teste: {t}", f"- Resistiu? {res}", ""]
     md += ["## Justificação", "", just, "", "## Síntese do módulo", "", tabela_md(ed5), ""]
     st.download_button("⬇️ Descarregar o caderno deste módulo (Markdown)", "\n".join(md),
-                       file_name=f"caderno_{P}.md", mime="text/markdown", key=f"{P}_dl")
+                       file_name=f"caderno_{P}.md", mime="text/markdown", key=f"{P}_cb_dl")
 
 
 # --------------------------------------------------------------------------
@@ -703,8 +703,8 @@ def modulo_rotacoes(modo_prof):
     st.markdown("**Compor duas rotações:** aplica-se $M_1 = M(c_1\\pi)$ e depois $M_2 = M(c_2\\pi)$. Compara o produto com $M((c_1 + c_2)\\pi)$.")
     cc, cd = st.columns([1, 1.3])
     with cc:
-        c1 = st.number_input("c₁", value=0.25, step=0.05, format="%.3f", key=f"{P}_c1")
-        c2 = st.number_input("c₂", value=0.5, step=0.05, format="%.3f", key=f"{P}_c2")
+        c1 = st.number_input("c₁", value=0.25, step=0.05, format="%.3f", key=f"{P}_comp_c1")
+        c2 = st.number_input("c₂", value=0.5, step=0.05, format="%.3f", key=f"{P}_comp_c2")
     with cd:
         Pr = mostrar_composicao(matriz_rotacao(c1 * np.pi), matriz_rotacao(c2 * np.pi), circulos=True)
         Ms = matriz_rotacao((c1 + c2) * np.pi)
