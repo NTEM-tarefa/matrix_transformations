@@ -271,7 +271,7 @@ DESAFIOS_SC = [
     },
     {
         "titulo": "5. Refletir em Oy",
-        "texto": "Reflete a figura em relação ao eixo $Oy$. *(Isto já é scaling? Discute.)*",
+        "texto": "Reflete a figura em relação ao eixo $Oy$. *(Isto ainda é scaling? Discute.)*",
         "alvo": np.array([[-1, -4, -2], [1, 1, 3]], dtype=float),
         "M_sol": np.array([[-1.0, 0.0], [0.0, 1.0]]),
         "solucao": r"$M = \begin{bmatrix} -1 & 0 \\ 0 & 1 \end{bmatrix}$ (scaling com fator negativo).",
