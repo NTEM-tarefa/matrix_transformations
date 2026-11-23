@@ -6,6 +6,8 @@ Módulos autónomos:  A · variações de tamanho (scaling)  ·  B · cisalhamen
 
 Executar:  streamlit run app.py
 """
+import io
+
 import numpy as np
 import pandas as pd
 from matplotlib.figure import Figure
@@ -84,7 +86,10 @@ def desenhar_base(M):
 
 
 def mostrar(fig):
-    st.pyplot(fig)
+    """Mostra a figura como PNG a 120 dpi (mais leve e rápido do que o st.pyplot, que grava a 200 dpi)."""
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", dpi=120, bbox_inches="tight")
+    st.image(buf.getvalue())
 
 
 def area(P):
@@ -457,13 +462,9 @@ def caderno(P, titulo, obs_linhas, desafios, sintese_perguntas, n_conj=2):
 # --------------------------------------------------------------------------
 # Módulo A — Variações de tamanho (scaling)
 # --------------------------------------------------------------------------
-def modulo_scaling(modo_prof):
+@st.fragment
+def sc_explorar():
     P = "sc"
-    st.header("Módulo A — Variações de tamanho (scaling)")
-    st.markdown(REGRA_MD)
-    st.markdown("Neste módulo vais descobrir que matrizes **ampliam, reduzem ou deformam** a figura em relação à origem.")
-
-    # 1 · Explorar
     st.subheader("1 · Explorar")
     st.markdown(
         "Começa com $M$ igual à identidade. Altera **só $p$**; depois **só $s$**; depois $p$ e $s$ **ao mesmo tempo**. "
@@ -477,7 +478,10 @@ def modulo_scaling(modo_prof):
         mostrar(desenhar([X, M @ X], ["original", "imagem"]))
     mostrar_medidas(X, M @ X)
 
-    # 2 · Desafios
+
+@st.fragment
+def sc_desafios(modo_prof):
+    P = "sc"
     st.divider()
     st.subheader("2 · Caça às transformações")
     st.markdown(
@@ -486,7 +490,10 @@ def modulo_scaling(modo_prof):
     )
     secao_desafios(P, DESAFIOS_SC, modo_prof)
 
-    # 3 · Conjeturar
+
+@st.fragment
+def sc_conjeturar():
+    P = "sc"
     st.divider()
     st.subheader("3 · Conjeturar e testar")
     st.markdown(
@@ -516,7 +523,10 @@ def modulo_scaling(modo_prof):
     with cd:
         mostrar_composicao(np.diag([k1, l1]), np.diag([k2, l2]))
 
-    # 4 · Justificar
+
+@st.fragment
+def sc_justificar(modo_prof):
+    P = "sc"
     st.divider()
     st.subheader("4 · Justificar")
     st.markdown(
@@ -535,7 +545,10 @@ def modulo_scaling(modo_prof):
             "- Compor scalings multiplica os fatores: $M_2\\,M_1 = \\mathrm{diag}(k_1 k_2,\\, l_1 l_2)$."
         )
 
-    # 5 · Caderno
+
+@st.fragment
+def sc_caderno():
+    P = "sc"
     st.divider()
     caderno(
         P, "Módulo A · Variações de tamanho (scaling)",
@@ -549,16 +562,23 @@ def modulo_scaling(modo_prof):
     )
 
 
+def modulo_scaling(modo_prof):
+    st.header("Módulo A — Variações de tamanho (scaling)")
+    st.markdown(REGRA_MD)
+    st.markdown("Neste módulo vais descobrir que matrizes **ampliam, reduzem ou deformam** a figura em relação à origem.")
+    sc_explorar()
+    sc_desafios(modo_prof)
+    sc_conjeturar()
+    sc_justificar(modo_prof)
+    sc_caderno()
+
+
 # --------------------------------------------------------------------------
 # Módulo B — Cisalhamentos (shearing)
 # --------------------------------------------------------------------------
-def modulo_shearing(modo_prof):
+@st.fragment
+def sh_explorar():
     P = "sh"
-    st.header("Módulo B — Cisalhamentos (shearing)")
-    st.markdown(REGRA_MD)
-    st.markdown("Neste módulo vais descobrir que matrizes **inclinam** a figura, \"deslizando-a\" numa direção.")
-
-    # 1 · Explorar
     st.subheader("1 · Explorar")
     st.markdown(
         "Começa com $M$ igual à identidade. Altera **só $q$**; depois volta a $q = 0$ e altera **só $r$**. "
@@ -573,7 +593,10 @@ def modulo_shearing(modo_prof):
         mostrar(desenhar([X, M @ X], ["original", "imagem"]))
     mostrar_medidas(X, M @ X)
 
-    # 2 · Desafios
+
+@st.fragment
+def sh_desafios(modo_prof):
+    P = "sh"
     st.divider()
     st.subheader("2 · Caça às transformações")
     st.markdown(
@@ -582,7 +605,10 @@ def modulo_shearing(modo_prof):
     )
     secao_desafios(P, DESAFIOS_SH, modo_prof)
 
-    # 3 · Conjeturar
+
+@st.fragment
+def sh_conjeturar():
+    P = "sh"
     st.divider()
     st.subheader("3 · Conjeturar e testar")
     st.markdown(
@@ -610,7 +636,10 @@ def modulo_shearing(modo_prof):
     with cd:
         mostrar_composicao(np.array([[1.0, a], [0.0, 1.0]]), np.array([[1.0, b], [0.0, 1.0]]))
 
-    # 4 · Justificar
+
+@st.fragment
+def sh_justificar(modo_prof):
+    P = "sh"
     st.divider()
     st.subheader("4 · Justificar")
     st.markdown(
@@ -630,7 +659,10 @@ def modulo_shearing(modo_prof):
             "- Compor cisalhamentos horizontais soma os $q$: o de $-q$ \"desfaz\" o de $q$."
         )
 
-    # 5 · Caderno
+
+@st.fragment
+def sh_caderno():
+    P = "sh"
     st.divider()
     caderno(
         P, "Módulo B · Cisalhamentos (shearing)",
@@ -644,20 +676,23 @@ def modulo_shearing(modo_prof):
     )
 
 
+def modulo_shearing(modo_prof):
+    st.header("Módulo B — Cisalhamentos (shearing)")
+    st.markdown(REGRA_MD)
+    st.markdown("Neste módulo vais descobrir que matrizes **inclinam** a figura, \"deslizando-a\" numa direção.")
+    sh_explorar()
+    sh_desafios(modo_prof)
+    sh_conjeturar()
+    sh_justificar(modo_prof)
+    sh_caderno()
+
+
 # --------------------------------------------------------------------------
 # Módulo C — Rotações
 # --------------------------------------------------------------------------
-def modulo_rotacoes(modo_prof):
+@st.fragment
+def ro_explorar():
     P = "ro"
-    st.header("Módulo C — Rotações")
-    st.markdown(REGRA_MD)
-    st.markdown(
-        "Neste módulo vais descobrir a matriz que **roda** a figura em torno da origem. "
-        "O ângulo de rotação, em radianos, é $\\alpha = c\\,\\pi$; o que escolhes é o valor de $c$ "
-        "(positivo = sentido contrário ao dos ponteiros do relógio)."
-    )
-
-    # 1 · Explorar
     st.subheader("1 · Explorar")
     st.markdown(
         "Move $c$. O que **se mantém** na figura (lados, ângulos, área)? Em torno de que ponto roda? "
@@ -671,7 +706,10 @@ def modulo_rotacoes(modo_prof):
         mostrar(desenhar([X, M @ X], ["original", "imagem"], circulos=True))
     mostrar_medidas(X, M @ X, rotacao=True)
 
-    # 2 · Desafios
+
+@st.fragment
+def ro_desafios(modo_prof):
+    P = "ro"
     st.divider()
     st.subheader("2 · Caça às transformações")
     st.markdown(
@@ -680,7 +718,10 @@ def modulo_rotacoes(modo_prof):
     )
     secao_desafios(P, DESAFIOS_RO, modo_prof, entrada=entrada_rotacao, rotacao=True, circulos=True)
 
-    # 3 · Conjeturar
+
+@st.fragment
+def ro_conjeturar():
+    P = "ro"
     st.divider()
     st.subheader("3 · Conjeturar e testar")
     st.markdown(
@@ -711,7 +752,10 @@ def modulo_rotacoes(modo_prof):
         st.latex(rf"M\big((c_1 + c_2)\pi\big) = {latex_mat(Ms)}")
         st.write("**As duas matrizes são iguais?**", "Sim ✅" if np.allclose(Pr, Ms) else "Não ❌")
 
-    # 4 · Justificar
+
+@st.fragment
+def ro_justificar(modo_prof):
+    P = "ro"
     st.divider()
     st.subheader("4 · Justificar")
     st.markdown(
@@ -731,7 +775,10 @@ def modulo_rotacoes(modo_prof):
             "- Compor rotações soma os ângulos: $M(\\beta)\\,M(\\alpha) = M(\\alpha + \\beta)$; a inversa de $M(\\alpha)$ é $M(-\\alpha)$."
         )
 
-    # 5 · Caderno
+
+@st.fragment
+def ro_caderno():
+    P = "ro"
     st.divider()
     caderno(
         P, "Módulo C · Rotações",
@@ -742,6 +789,21 @@ def modulo_rotacoes(modo_prof):
          "O que se conserva",
          "Rotação que desfaz a de ângulo α; composição de rotações"],
     )
+
+
+def modulo_rotacoes(modo_prof):
+    st.header("Módulo C — Rotações")
+    st.markdown(REGRA_MD)
+    st.markdown(
+        "Neste módulo vais descobrir a matriz que **roda** a figura em torno da origem. "
+        "O ângulo de rotação, em radianos, é $\\alpha = c\\,\\pi$; o que escolhes é o valor de $c$ "
+        "(positivo = sentido contrário ao dos ponteiros do relógio)."
+    )
+    ro_explorar()
+    ro_desafios(modo_prof)
+    ro_conjeturar()
+    ro_justificar(modo_prof)
+    ro_caderno()
 
 
 # --------------------------------------------------------------------------
