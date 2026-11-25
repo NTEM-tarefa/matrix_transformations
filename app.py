@@ -989,6 +989,14 @@ def es_explorar(modo_prof):
         "O aluno escolhe as três opções corretas depois de testar com diferentes valores de $k$ e $l$.",
     )
     st.markdown(
+        "Nesta parte aplicas uma **matriz de escalonamento** $M=\\begin{bmatrix}k&0\\\\0&l\\end{bmatrix}$ a **cada ponto** do triângulo $ABC$: "
+        "cada ponto $\\mathbf{x}=(x,y)$ é transformado em $\\mathbf{x}'=M\\,\\mathbf{x}$, e os pontos obtidos formam o triângulo imagem $A'B'C'$. "
+        "Para desenhar a imagem basta transformar os três vértices, que são as colunas da matriz $X$:"
+    )
+    st.latex(r"X = \begin{bmatrix} | & | & | \\ \mathbf{x}_1 & \mathbf{x}_2 & \mathbf{x}_3 \\ | & | & | \end{bmatrix}"
+             r" = \begin{bmatrix} 1 & 4 & 2 \\ 1 & 1 & 3 \end{bmatrix}"
+             r" \ \longmapsto\ X' = M\,X = \begin{bmatrix} | & | & | \\ M\mathbf{x}_1 & M\mathbf{x}_2 & M\mathbf{x}_3 \\ | & | & | \end{bmatrix}")
+    st.markdown(
         "Move $k$ e $l$, experimentando valores **iguais** e **diferentes**, maiores e menores do que 1. "
         "Escolhe em baixo **o que estás a investigar**: o gráfico e os dados mudam em conformidade. "
         "Responde às três perguntas."
