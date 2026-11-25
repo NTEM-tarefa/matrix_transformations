@@ -30,12 +30,10 @@ ESTILO = """
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 html, body, .stApp, .stMarkdown, button, input, textarea, [data-baseweb="select"] { font-family: 'Inter', sans-serif; }
 .block-container { max-width: 1120px; padding-top: 2.2rem; padding-bottom: 4rem; }
-.hero { border-radius: 14px; padding: 1.2rem 1.6rem; margin: 0.4rem 0 1.4rem;
-        background: linear-gradient(135deg, rgba(47,109,181,0.14), rgba(47,109,181,0.04));
-        border: 1px solid rgba(47,109,181,0.25); border-left: 7px solid #2F6DB5; }
-.hero h1 { margin: 0; padding: 0; font-size: 2.1rem; font-weight: 700; letter-spacing: -0.02em; }
-.hero p { margin: 0.35rem 0 0; opacity: 0.7; font-size: 1rem; }
-.hero p.sub { opacity: 0.9; font-size: 1.2rem; font-weight: 500; }
+.hero { margin: 0.2rem 0 1.6rem; padding-bottom: 1.1rem; border-bottom: 1px solid rgba(128,128,128,0.3); }
+.hero h1 { margin: 0; padding: 0; font-size: 2.4rem; font-weight: 700; letter-spacing: -0.025em; line-height: 1.15; }
+.hero p.sub { margin: 0.4rem 0 0; font-size: 1.2rem; font-weight: 400; opacity: 0.7; }
+.hero p.nivel { margin: 0.7rem 0 0; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.55; }
 h2 { font-weight: 700; letter-spacing: -0.01em; }
 h3 { font-weight: 600; color: #2F6DB5; }
 div[data-testid="stVerticalBlockBorderWrapper"] { border-radius: 14px; }
@@ -531,7 +529,7 @@ with col_prof:
 st.markdown(
     '<div class="hero"><h1>Como fica o triângulo?</h1>'
     '<p class="sub">Variações de tamanho por aplicação de matrizes</p>'
-    '<p>12.º ano - Matemática A</p></div>',
+    '<p class="nivel">12.º ano - Matemática A</p></div>',
     unsafe_allow_html=True,
 )
 
