@@ -928,41 +928,37 @@ def nota_objetivo(conhecimento, capacidade, evidencia):
     )
 
 
-def desenhar_escalonamento(k, l, pontos=True, retas_h=False, retas_v=False, quadrado=False):
+def desenhar_escalonamento(k, l, pontos=True, seg_h=False, seg_v=False, quadrado=False):
     """Triângulo X e a sua imagem por diag(k, l), com ajudas visuais opcionais:
-    deslocamento de cada ponto, retas horizontais e verticais (e as suas imagens), quadrado unitário (e a sua imagem)."""
+    deslocamento de cada ponto, base AB (segmento horizontal) e altura CD (segmento vertical) com as suas imagens,
+    quadrado unitário e a sua imagem."""
     M = np.array([[k, 0.0], [0.0, l]])
     X1 = M @ X
-    cs = [1.0, 2.0, 3.0]
+    D = np.array([X[0, 2], X[1, 0]])  # pé da altura traçada de C sobre a base AB (horizontal)
+    D1 = M @ D
+    Q = np.array([[0, 1, 1, 0], [0, 0, 1, 1]], dtype=float)
     ext = [np.abs(X).max(), np.abs(X1).max(), 5.0]
-    if retas_h:
-        ext.append(max(l * c for c in cs))
-    if retas_v:
-        ext.append(max(k * c for c in cs))
     if quadrado:
         ext.append(max(k, l))
     lim = float(np.ceil(max(ext))) + 1
     fig = Figure(figsize=(5.5, 5.5))
     ax = fig.subplots()
     if quadrado:
-        Q = np.array([[0, 1, 1, 0], [0, 0, 1, 1]], dtype=float)
         for P, cor, nome in ((Q, "tab:blue", "quadrado unitário"), (M @ Q, "tab:red", "imagem do quadrado")):
             ax.fill(P[0], P[1], alpha=0.12, color=cor, zorder=0)
             ax.plot(np.append(P[0], P[0][0]), np.append(P[1], P[1][0]), "-", color=cor, lw=1.2, zorder=1, label=nome)
-    if retas_h:
-        for c in cs:
-            ax.axhline(c, color="tab:blue", ls=":", lw=1.2, alpha=0.8, zorder=0)
-            ax.axhline(l * c, color="tab:red", ls="--", lw=1.2, alpha=0.8, zorder=0)
-            ax.annotate(f"y={_f(c)}", (-lim, c), xytext=(3, 2), textcoords="offset points", color="tab:blue", fontsize=9)
-            ax.annotate(f"y={_f(l * c)}", (lim, l * c), xytext=(-3, 2), textcoords="offset points",
-                        ha="right", color="tab:red", fontsize=9)
-    if retas_v:
-        for c in cs:
-            ax.axvline(c, color="tab:blue", ls=":", lw=1.2, alpha=0.8, zorder=0)
-            ax.axvline(k * c, color="tab:red", ls="--", lw=1.2, alpha=0.8, zorder=0)
-            ax.annotate(f"x={_f(c)}", (c, -lim), xytext=(2, 3), textcoords="offset points", color="tab:blue", fontsize=9)
-            ax.annotate(f"x={_f(k * c)}", (k * c, lim), xytext=(2, -11), textcoords="offset points",
-                        color="tab:red", fontsize=9)
+    if seg_h:
+        for (p, q), cor, nome in (((X[:, 0], X[:, 1]), "tab:blue", "AB"), ((X1[:, 0], X1[:, 1]), "tab:red", "A′B′")):
+            ax.plot([p[0], q[0]], [p[1], q[1]], "-", color=cor, lw=5, alpha=0.55, solid_capstyle="butt", zorder=3)
+            ax.annotate(nome, (p + q) / 2, textcoords="offset points", xytext=(0, -16), ha="center",
+                        color=cor, fontsize=10, fontweight="bold")
+    if seg_v:
+        for (p, q), cor, nome, d in (((D, X[:, 2]), "tab:blue", "CD", "D"), ((D1, X1[:, 2]), "tab:red", "C′D′", "D′")):
+            ax.plot([p[0], q[0]], [p[1], q[1]], "-", color=cor, lw=5, alpha=0.55, solid_capstyle="butt", zorder=3)
+            ax.plot(*p, "s", color=cor, ms=5, zorder=4)
+            ax.annotate(d, p, textcoords="offset points", xytext=(6, -14), color=cor, fontsize=10)
+            ax.annotate(nome, (p + q) / 2, textcoords="offset points", xytext=(8, 0), color=cor,
+                        fontsize=10, fontweight="bold")
     for P, cor, nome, suf in ((X, "tab:blue", "original", ""), (X1, "tab:red", "imagem", "′")):
         ax.fill(np.append(P[0], P[0][0]), np.append(P[1], P[1][0]), alpha=0.2, color=cor)
         ax.plot(np.append(P[0], P[0][0]), np.append(P[1], P[1][0]), "o-", color=cor, label=nome)
@@ -983,11 +979,11 @@ def desenhar_escalonamento(k, l, pontos=True, retas_h=False, retas_v=False, quad
 def es_explorar(modo_prof):
     st.subheader("Parte 1 · Explorar e conjeturar")
     nota_objetivo(
-        "Uma variação de tamanho, $\\mathrm{diag}(k,l)$, leva $(x,y)$ a $(kx,\\,ly)$; uma reta horizontal $y=c$ vai para a reta horizontal $y=l\\,c$, "
-        "e uma reta vertical $x=c$ para a vertical $x=k\\,c$; a área fica multiplicada por $k\\,l$.",
+        "Uma variação de tamanho, $\\mathrm{diag}(k,l)$, leva $(x,y)$ a $(kx,\\,ly)$; um segmento horizontal continua horizontal, com o comprimento multiplicado por $k$, "
+        "e um segmento vertical continua vertical, com o comprimento multiplicado por $l$; a área fica multiplicada por $k\\,l$.",
         "Formular **conjeturas** a partir da observação (gráfico e valores numéricos) sobre o que a transformação faz a "
-        "(a) cada ponto, (b) cada reta horizontal e vertical e (c) à área, e exprimi-las em linguagem matemática.",
-        "O aluno escreve uma regra para as coordenadas, diz que as retas mantêm a direção e dá a nova posição, e relaciona as áreas com $k$ e $l$.",
+        "(a) cada ponto, (b) cada segmento horizontal e vertical e (c) à área, e exprimi-las em linguagem matemática.",
+        "O aluno escreve uma regra para as coordenadas, diz que os segmentos mantêm a direção, indica como mudam os comprimentos, e relaciona as áreas com $k$ e $l$.",
     )
     st.markdown(
         "Move $k$ e $l$ e liga as ajudas no gráfico (uma de cada vez, para cada pergunta). "
@@ -1001,8 +997,8 @@ def es_explorar(modo_prof):
         st.latex(rf"M = {latex_mat(M)}")
         st.markdown("**Ajudas no gráfico**")
         pontos = st.checkbox("Deslocamento de cada ponto (A→A′, B→B′, C→C′)", value=True, key="es_v_pontos")
-        retas_h = st.checkbox("Retas horizontais y = 1, 2, 3 e as suas imagens", value=False, key="es_v_h")
-        retas_v = st.checkbox("Retas verticais x = 1, 2, 3 e as suas imagens", value=False, key="es_v_v")
+        seg_h = st.checkbox("Segmento horizontal (a base AB) e a sua imagem", value=False, key="es_v_h")
+        seg_v = st.checkbox("Segmento vertical (a altura CD) e a sua imagem", value=False, key="es_v_v")
         quadrado = st.checkbox("Quadrado unitário e a sua imagem", value=False, key="es_v_q")
         X1 = M @ X
         linhas = {"Ponto": [], "Original": [], "Imagem": []}
@@ -1011,22 +1007,29 @@ def es_explorar(modo_prof):
             linhas["Original"].append(f"({_f(X[0, j])}, {_f(X[1, j])})")
             linhas["Imagem"].append(f"({_f(X1[0, j])}, {_f(X1[1, j])})")
         st.markdown(tabela_md(pd.DataFrame(linhas)))
+        if seg_h:
+            st.metric("Comprimento da base AB (original → imagem)",
+                      f"{np.linalg.norm(X[:, 1] - X[:, 0]):.2f} → {np.linalg.norm(X1[:, 1] - X1[:, 0]):.2f}")
+        if seg_v:
+            D = np.array([X[0, 2], X[1, 0]])
+            st.metric("Comprimento da altura CD (original → imagem)",
+                      f"{np.linalg.norm(X[:, 2] - D):.2f} → {np.linalg.norm(X1[:, 2] - M @ D):.2f}")
         st.metric("Área do triângulo (original → imagem)", f"{area(X):.2f} → {area(X1):.2f}")
     with c2:
-        mostrar(desenhar_escalonamento(k, l, pontos, retas_h, retas_v, quadrado))
+        mostrar(desenhar_escalonamento(k, l, pontos, seg_h, seg_v, quadrado))
     st.markdown("**Conjetura (a) · Pontos.** Compara as coordenadas de cada ponto com as da sua imagem. "
                 "Que fazes a $(x,y)$ para obter a imagem? Escreve a regra.")
     st.text_area("Pontos", key="es_t1a", height=70, label_visibility="collapsed")
-    st.markdown("**Conjetura (b) · Retas.** Que acontece a uma reta horizontal? E a uma vertical? "
-                "Mantêm a direção? Para onde vai a reta $y=2$? E a reta $x=2$?")
-    st.text_area("Retas", key="es_t1b", height=70, label_visibility="collapsed")
+    st.markdown("**Conjetura (b) · Segmentos.** Que acontece a um segmento horizontal (a base $AB$)? E a um segmento vertical "
+                "(a altura $CD$)? Mantêm a direção? Como mudam os seus comprimentos?")
+    st.text_area("Segmentos", key="es_t1b", height=70, label_visibility="collapsed")
     st.markdown("**Conjetura (c) · Área.** Como se relaciona a área da imagem com a da figura original? "
                 "E com $k$ e $l$? *(O quadrado unitário pode ajudar.)*")
     st.text_area("Área", key="es_t1c", height=70, label_visibility="collapsed")
     if modo_prof:
         st.info(
             "**Conjeturas esperadas:** (a) $(x,y)\\mapsto(k\\,x,\\ l\\,y)$: a abcissa multiplica por $k$ e a ordenada por $l$. "
-            "(b) Uma reta horizontal $y=c$ vai para a reta horizontal $y=l\\,c$ (a direção mantém-se); uma vertical $x=c$ vai para a vertical $x=k\\,c$. "
+            "(b) Um segmento horizontal continua horizontal e o seu comprimento multiplica por $k$ (em módulo); um segmento vertical continua vertical e o seu comprimento multiplica por $l$. "
             "(c) A área fica multiplicada por $k\\,l$ (o quadrado unitário passa a um retângulo $k\\times l$)."
         )
 
