@@ -2,7 +2,7 @@
 Como se move o triângulo?
 Tarefa exploratória sobre transformações no plano com matrizes (Streamlit).
 
-Separador A · escalonamento (variações de tamanho): explorar e responder, descobrir M, justificar.
+Separador A · variação de tamanho: explorar e responder, descobrir M, justificar.
 
 Executar:  streamlit run app.py
 """
@@ -71,7 +71,7 @@ def tabela_md(df):
 
 
 # --------------------------------------------------------------------------
-# A · Escalonamento — tarefa curta, com o objetivo de cada parte indicado (modo professor)
+# A · Variação de tamanho — tarefa curta, com o objetivo de cada parte indicado (modo professor)
 # --------------------------------------------------------------------------
 def nota_objetivo(modo_prof, conhecimento, capacidade, evidencia):
     """Caixa para o professor: o que se pretende desenvolver na parte em causa (só no modo professor)."""
@@ -85,7 +85,7 @@ def nota_objetivo(modo_prof, conhecimento, capacidade, evidencia):
     )
 
 
-def desenhar_escalonamento(k, l, pontos=True, seg_h=False, seg_v=False, quadrado=False):
+def desenhar_variacao_tamanho(k, l, pontos=True, seg_h=False, seg_v=False, quadrado=False):
     """Triângulo X e a sua imagem por diag(k, l), com ajudas visuais opcionais:
     deslocamento de cada ponto, base AB (segmento horizontal) e altura CD (segmento vertical) com as suas imagens,
     quadrado unitário e a sua imagem."""
@@ -144,7 +144,7 @@ def es_explorar(modo_prof):
         "O aluno escolhe as três opções corretas depois de testar com diferentes valores de $k$ e $l$.",
     )
     st.markdown(
-        "Nesta parte aplicas uma **matriz de escalonamento** $M=\\begin{bmatrix}k&0\\\\0&l\\end{bmatrix}$ a **cada ponto** do triângulo $ABC$: "
+        "Nesta parte aplicas uma **matriz de variação de tamanho** $M=\\begin{bmatrix}k&0\\\\0&l\\end{bmatrix}$ a **cada ponto** do triângulo $ABC$: "
         "cada ponto $\\mathbf{x}=(x,y)$ é transformado em $\\mathbf{x}'=M\\,\\mathbf{x}$, e os pontos obtidos formam o triângulo imagem $A'B'C'$. "
         "Para desenhar a imagem basta transformar os três vértices, que são as colunas da matriz $X$:"
     )
@@ -180,7 +180,7 @@ def es_explorar(modo_prof):
         else:
             st.metric("Área do triângulo (original → imagem)", f"{area(X):.2f} → {area(X1):.2f}")
     with c2:
-        mostrar(desenhar_escalonamento(k, l, pontos=foco.startswith("(a)"),
+        mostrar(desenhar_variacao_tamanho(k, l, pontos=foco.startswith("(a)"),
                                        seg_h=foco.startswith("(b)"), seg_v=foco.startswith("(b)"),
                                        quadrado=foco.startswith("(c)")))
     dica = "testa esta opção no gráfico, com outros valores de $k$ e $l$."
@@ -432,7 +432,7 @@ def es_exportar():
     st.markdown("As respostas perdem-se se a página for atualizada. Escreve o nome do grupo, prepara o ficheiro e descarrega-o.")
     nome = st.text_input("Nome do grupo", key="es_nome")
     if st.button("Preparar ficheiro com as minhas respostas", key="es_prep"):
-        linhas = [f"# Escalonamento — {nome or 'sem nome'}", ""]
+        linhas = [f"# Variação de tamanho — {nome or 'sem nome'}", ""]
         for titulo, chave in RESPOSTAS_ES:
             resp = st.session_state.get(chave, "")
             linhas += [f"## {titulo}", resp if resp else "(sem resposta)", ""]
@@ -442,13 +442,13 @@ def es_exportar():
                 escolhidas = [st.session_state.get(f"{chave}_{i}") or "(vazio)" for i, p in enumerate(partes) if not isinstance(p, str)]
                 linhas.append("- " + "; ".join(escolhidas))
             linhas.append("")
-        st.download_button("Descarregar (.md)", "\n".join(linhas), file_name="escalonamento_respostas.md", key="es_dl")
+        st.download_button("Descarregar (.md)", "\n".join(linhas), file_name="variacao_tamanho_respostas.md", key="es_dl")
 
 
-def modulo_escalonamento_draft(modo_prof):
-    st.header("Escalonamento")
+def modulo_variacao_tamanho(modo_prof):
+    st.header("Variação de tamanho")
     st.markdown(
-        "**Objetivo da tarefa:** caracterizar geometricamente a transformação por **escalonamento** (variação de tamanho), "
+        "**Objetivo da tarefa:** caracterizar geometricamente a transformação por **variação de tamanho**, "
         "isto é, descobrir o que ela faz aos pontos, aos segmentos e à área de uma figura, e justificar porquê. "
         "Começas por explorar e responder, depois usas o que descobriste para determinar uma matriz, e acabas a justificar as regras."
     )
@@ -489,7 +489,7 @@ with col_prof:
 st.title("Como se move o triângulo?")
 st.caption("Tarefa exploratória · pares")
 
-abas = st.tabs(["A - escalonamento"])
+abas = st.tabs(["A - variação de tamanho"])
 
 with abas[0]:
-    modulo_escalonamento_draft(modo_prof)
+    modulo_variacao_tamanho(modo_prof)
