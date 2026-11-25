@@ -1034,71 +1034,77 @@ def es_explorar(modo_prof):
         )
 
 
-@st.fragment
-def es_prever():
-    st.subheader("Parte 2 · Prever e verificar")
-    nota_objetivo(
-        "O produto de uma matriz diagonal por uma matriz coluna: $\\begin{bmatrix}k&0\\\\0&l\\end{bmatrix}\\begin{bmatrix}x\\\\y\\end{bmatrix}"
-        "=\\begin{bmatrix}kx\\\\ly\\end{bmatrix}$.",
-        "Calcular a imagem de um ponto, sem ajuda da app, usando o produto linha por coluna (e reconhecer que as entradas nulas "
-        "não contribuem).",
-        "O aluno acerta nas coordenadas de $\\mathbf{x}'$ nos três casos, incluindo um fator inferior a 1 e um não inteiro.",
-    )
-    st.markdown("Calcula **à mão** a imagem do vértice indicado e escreve as coordenadas. A app diz-te se acertaste.")
-    itens = [
-        ("B", X[:, 1], 2.0, 3.0),
-        ("B", X[:, 1], 0.5, 2.0),
-        ("C", X[:, 2], 1.5, 2.0),
-    ]
-    for i, (nome, v, k, l) in enumerate(itens):
-        M = np.array([[k, 0.0], [0.0, l]])
-        c1, c2, c3 = st.columns([2.2, 1, 1])
-        c1.latex(rf"{latex_mat(M)}{latex_coluna(v)} = \begin{{bmatrix}} ? \\ ? \end{{bmatrix}}")
-        xa = c2.number_input(f"x′ (caso {i + 1})", value=None, step=0.5, key=f"es_p{i}_x", placeholder="x′")
-        ya = c3.number_input(f"y′ (caso {i + 1})", value=None, step=0.5, key=f"es_p{i}_y", placeholder="y′")
-        if xa is not None and ya is not None:
-            if np.allclose([xa, ya], M @ v):
-                st.success(f"✅ Caso {i + 1}: certo.")
-            else:
-                st.error(f"❌ Caso {i + 1}: confere cada coordenada: a primeira usa só a abcissa de {nome}, a segunda só a ordenada.")
+def desenhar_alvo(X1, alvo):
+    """Triângulo original (com as coordenadas de A, B, C), triângulo alvo (com as suas coordenadas) e a imagem atual."""
+    lim = float(np.ceil(max(np.abs(X).max(), np.abs(alvo).max(), np.abs(X1).max(), 5.0))) + 1
+    fig = Figure(figsize=(5.5, 5.5))
+    ax = fig.subplots()
+    estilos = ((X, "tab:blue", "-", "original", "", None),
+               (X1, "tab:red", "-", "imagem de M", "′", None),
+               (alvo, "k", "--", "alvo", "*", None))
+    for P, cor, ls, nome, suf, desl in estilos:
+        xs, ys = np.append(P[0], P[0][0]), np.append(P[1], P[1][0])
+        if nome != "alvo":
+            ax.fill(xs, ys, alpha=0.15, color=cor)
+        ax.plot(xs, ys, ls, color=cor, marker="o", label=nome, lw=1.8 if nome != "imagem de M" else 1.4)
+        if nome != "imagem de M":  # coordenadas de A, B, C e de A*, B*, C*
+            for j in range(3):
+                if nome == "original":  # etiquetas do original: em cima, à esquerda do ponto
+                    desloc, ha = (-6, 6), "right"
+                else:                   # etiquetas do alvo: em baixo, à direita do ponto
+                    desloc, ha = (6, -15), "left"
+                ax.annotate(f"{chr(65 + j)}{suf}({_f(P[0, j])}, {_f(P[1, j])})", (P[0, j], P[1, j]),
+                            textcoords="offset points", xytext=desloc, ha=ha, color=cor, fontsize=10, fontweight="bold")
+    _eixos(ax, lim)
+    ax.legend(loc="upper left")
+    return fig
 
 
 @st.fragment
-def es_inverso():
-    st.subheader("Parte 3 · Descobrir os fatores")
+def es_inverso(modo_prof):
+    st.subheader("Parte 2 · Descobrir $M$")
     nota_objetivo(
-        "Cada coordenada da imagem é a da figura original multiplicada por um fator: $k=x'/x$ e $l=y'/y$.",
-        "Raciocinar no sentido inverso: a partir da figura e do alvo, determinar $k$ e $l$ comparando coordenadas "
-        "correspondentes (basta um vértice).",
-        "O aluno encontra $k$ e $l$ sem tentativa e erro prolongada e justifica-os com um vértice.",
+        "$M$ leva $(x,y)$ a $(kx,\\,ly)$, isto é, $M=\\begin{bmatrix}k&0\\\\0&l\\end{bmatrix}$; logo $k=x'/x$ e $l=y'/y$ em qualquer vértice.",
+        "Usar a conjetura da Parte 1 como **ferramenta**: a partir das coordenadas de $A$ e do ponto correspondente do alvo, "
+        "determinar as entradas de $M$ (incluindo as que são nulas), e verificar com os outros vértices.",
+        "O aluno preenche $M$ sem tentativa e erro prolongada e justifica-a com um vértice.",
     )
     alvos = [
-        ("Alvo 1", np.diag([2.0, 1.0]) @ X, (2.0, 1.0)),
-        ("Alvo 2", np.diag([0.5, 2.0]) @ X, (0.5, 2.0)),
+        ("Alvo 1", np.diag([2.0, 1.0]) @ X, "$M=\\begin{bmatrix}2&0\\\\0&1\\end{bmatrix}$"),
+        ("Alvo 2", np.diag([0.5, 2.0]) @ X, "$M=\\begin{bmatrix}0{,}5&0\\\\0&2\\end{bmatrix}$"),
     ]
     esc = st.selectbox("Desafio", [a[0] for a in alvos], key="es_d3")
     idx = [a[0] for a in alvos].index(esc)
     alvo = alvos[idx][1]
-    st.markdown("Escolhe $k$ e $l$ para que a imagem coincida com o alvo (a tracejado).")
-    c1, c2 = st.columns([1, 1.3])
+    st.markdown(
+        "O triângulo alvo (a tracejado) é a imagem de $ABC$ por uma matriz $M$ que tens de descobrir. "
+        "O gráfico mostra as coordenadas de $A$, $B$, $C$ e dos pontos correspondentes do alvo, $A^*$, $B^*$, $C^*$. "
+        "**Usa a regra que conjeturaste na Parte 1** para encontrar as quatro entradas de $M$. "
+        "Quando as preencheres, a imagem aparece a vermelho."
+    )
+    c1, c2 = st.columns([1, 1.4])
     with c1:
-        k = st.slider("k", 0.25, 4.0, 1.0, 0.25, key=f"es_k3_{idx}")
-        l = st.slider("l", 0.25, 4.0, 1.0, 0.25, key=f"es_l3_{idx}")
-        M = np.array([[k, 0.0], [0.0, l]])
+        M = entrada_matriz(f"es_m3_{idx}")
         st.latex(rf"M = {latex_mat(M)}")
-        if np.allclose(M @ X, alvo):
-            st.success("✅ Coincide com o alvo!")
+        X1 = M @ X
+        if np.allclose(X1, alvo):
+            st.success("✅ A imagem coincide com o alvo!")
         else:
-            st.error("❌ Ainda não coincide com o alvo.")
+            st.error("❌ A imagem ainda não coincide com o alvo.")
+        if modo_prof:
+            st.info("**Solução:** " + alvos[idx][2])
     with c2:
-        mostrar(desenhar([X, M @ X], ["original", "imagem"], alvo=alvo))
-    st.markdown("Explica como podias ter descoberto $k$ e $l$ **olhando só para um vértice** e para o seu correspondente no alvo.")
+        mostrar(desenhar_alvo(X1, alvo))
+    st.markdown(
+        "Explica como podias ter descoberto as entradas de $M$ **olhando só para um vértice** e para o seu correspondente no alvo. "
+        "Porque é que as entradas fora da diagonal são nulas?"
+    )
     st.text_area("A tua explicação", key=f"es_t3_{idx}", height=80, label_visibility="collapsed")
 
 
 @st.fragment
 def es_conjeturar(modo_prof):
-    st.subheader("Parte 4 · Conjeturar e justificar")
+    st.subheader("Parte 3 · Testar e justificar")
     nota_objetivo(
         "Efeito de $\\mathrm{diag}(k,l)$ sobre a área (razão $kl$, o determinante) e sobre os ângulos (conservam-se só se $k=l$).",
         "Testar em novos casos a conjetura da Parte 1 sobre as áreas, enunciar a regra sobre os ângulos e justificar ambas (a base fica multiplicada por $k$ e a altura por $l$).",
@@ -1135,20 +1141,17 @@ def modulo_escalonamento_draft(modo_prof):
     )
     st.markdown("**Mapa das partes**")
     st.markdown(tabela_md(pd.DataFrame({
-        "Parte": ["1 · Explorar", "2 · Prever e verificar", "3 · Descobrir os fatores", "4 · Conjeturar e justificar"],
+        "Parte": ["1 · Explorar e conjeturar", "2 · Descobrir M", "3 · Testar e justificar"],
         "Capacidade principal": [
-            "Relacionar $k$, $l$ com o efeito geométrico",
-            "Calcular o produto de uma matriz diagonal por uma coluna",
-            "Raciocinar no sentido inverso (da imagem para os fatores)",
-            "Induzir, enunciar e justificar uma regra (área, ângulos)",
+            "Conjeturar sobre o efeito em pontos, segmentos e áreas",
+            "Usar a conjetura sobre pontos para determinar as entradas de $M$",
+            "Testar a conjetura sobre as áreas, enunciar a dos ângulos e justificar",
         ],
-        "Tipo de pensamento": ["Observação e descrição", "Cálculo", "Dedução", "Generalização e prova"],
+        "Tipo de pensamento": ["Observação e generalização", "Dedução", "Verificação e prova"],
     })))
     es_explorar(modo_prof)
     st.divider()
-    es_prever()
-    st.divider()
-    es_inverso()
+    es_inverso(modo_prof)
     st.divider()
     es_conjeturar(modo_prof)
 
