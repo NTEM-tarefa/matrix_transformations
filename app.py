@@ -475,15 +475,6 @@ def modulo_escalonamento_draft(modo_prof):
 # Barra lateral
 # --------------------------------------------------------------------------
 with st.sidebar:
-    st.header("📐 Transformações")
-    st.markdown(
-        "A matriz $X$ tem nas colunas os vértices do polígono: a coluna $i$, $\\mathbf{x}_i = \\begin{bmatrix} x_i \\\\ y_i \\end{bmatrix}$, "
-        "é transformada em\n\n"
-        "$$\\mathbf{x}_i' = M\\,\\mathbf{x}_i$$\n\n"
-        "com $M$ uma matriz 2×2."
-    )
-    st.caption("O polígono de partida tem os vértices A(1,1), B(4,1) e C(2,3), guardados nas colunas da matriz $X$.")
-    st.divider()
     senha = st.text_input("Modo professor (palavra-passe)", type="password", key="senha_prof")
     modo_prof = senha == "ntem"
     if senha and not modo_prof:
