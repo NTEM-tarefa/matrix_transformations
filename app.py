@@ -1329,6 +1329,8 @@ with st.sidebar:
         st.caption("Palavra-passe incorreta.")
     elif modo_prof:
         st.caption("Modo professor ativo: soluções e notas visíveis.")
+        st.button("Desligar modo professor", key="desligar_prof",
+                  on_click=lambda: st.session_state.update(senha_prof=""))
 
 st.title("Como se move o triângulo?")
 st.caption("Tarefa exploratória · pares · módulos autónomos de cerca de 30 minutos cada")
