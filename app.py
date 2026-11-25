@@ -923,7 +923,7 @@ def nota_objetivo(modo_prof, conhecimento, capacidade, evidencia):
     if not modo_prof:
         return
     st.info(
-        "🎯 **Rascunho · o que se pretende desenvolver nesta parte**\n\n"
+        "🎯 **Professor · o que se pretende desenvolver nesta parte**\n\n"
         f"- **Conhecimento:** {conhecimento}\n"
         f"- **Capacidade:** {capacidade}\n"
         f"- **Evidência:** {evidencia}"
@@ -1285,8 +1285,12 @@ def es_exportar():
 
 
 def modulo_escalonamento_draft(modo_prof):
-    st.header("Escalonamento (rascunho)")
-    st.markdown("Tarefa curta sobre variações de tamanho: explorar e conjeturar, descobrir uma matriz e justificar.")
+    st.header("Escalonamento")
+    st.markdown(
+        "**Objetivo da tarefa:** caracterizar geometricamente a transformação por **escalonamento** (variação de tamanho), "
+        "isto é, descobrir o que ela faz aos pontos, aos segmentos e à área de uma figura, e justificar porquê. "
+        "Começas por explorar e responder, depois usas o que descobriste para determinar uma matriz, e acabas a justificar as regras."
+    )
     if modo_prof:
         st.markdown("**Mapa das partes** *(modo professor)*")
         st.markdown(tabela_md(pd.DataFrame({
@@ -1319,7 +1323,12 @@ with st.sidebar:
     )
     st.caption("O polígono de partida tem os vértices A(1,1), B(4,1) e C(2,3), guardados nas colunas da matriz $X$.")
     st.divider()
-    modo_prof = st.checkbox("Modo professor (mostrar soluções)", value=False)
+    senha = st.text_input("Modo professor (palavra-passe)", type="password", key="senha_prof")
+    modo_prof = senha == "ntem"
+    if senha and not modo_prof:
+        st.caption("Palavra-passe incorreta.")
+    elif modo_prof:
+        st.caption("Modo professor ativo: soluções e notas visíveis.")
 
 st.title("Como se move o triângulo?")
 st.caption("Tarefa exploratória · pares · módulos autónomos de cerca de 30 minutos cada")
