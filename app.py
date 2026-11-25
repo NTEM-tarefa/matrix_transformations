@@ -2,7 +2,7 @@
 Como se move o triângulo?
 Tarefa exploratória sobre transformações no plano com matrizes (Streamlit).
 
-Módulos autónomos:  A · variações de tamanho (scaling)  ·  B · cisalhamentos (shearing)  ·  C · rotações  ·  D · distinguir transformações.
+Módulos autónomos:  A · variações de tamanho (scaling)  ·  B · cisalhamentos (shearing)  ·  C · rotações  ·  D · exercício (em construção).
 
 Executar:  streamlit run app.py
 """
@@ -807,169 +807,40 @@ def modulo_rotacoes(modo_prof):
 
 
 # --------------------------------------------------------------------------
-# Módulo D — Distinguir transformações (translação, scaling, shearing, rotação)
+# Módulo D — Exercício: o produto M·X (em construção)
 # --------------------------------------------------------------------------
-TIPOS = ["Translação", "Variação de tamanho", "Cisalhamento", "Rotação"]
-XV = np.array([2.0, 1.0])  # o vetor x usado em todos os casos deste módulo
-
-_c30, _s30 = np.cos(np.pi / 6), np.sin(np.pi / 6)
-CASOS_DV = [
-    {"tipo": "Translação", "b": np.array([3.0, -1.0]),
-     "pista": "Há uma **soma**, não um produto. Que acontece ao vetor nulo $\\mathbf{0}$?"},
-    {"tipo": "Rotação", "M": np.array([[0.0, -1.0], [1.0, 0.0]]),
-     "pista": "Compara o comprimento de $\\mathbf{x}$ com o de $\\mathbf{x}'$ e a direção das duas setas."},
-    {"tipo": "Variação de tamanho", "M": np.array([[0.5, 0.0], [0.0, 3.0]]),
-     "pista": "Cada coordenada de $\\mathbf{x}'$ depende **só** da coordenada correspondente de $\\mathbf{x}$."},
-    {"tipo": "Cisalhamento", "M": np.array([[1.0, 2.0], [0.0, 1.0]]),
-     "pista": "Uma coordenada fica igual; a outra recebe um acréscimo que depende da primeira."},
-    {"tipo": "Rotação", "M": np.array([[_c30, -_s30], [_s30, _c30]]),
-     "pista": "Calcula $|\\mathbf{x}|$ e $|\\mathbf{x}'|$. Repara na forma da matriz: $\\cos$ e $\\sin$."},
-    {"tipo": "Translação", "b": np.array([-2.0, -3.0]),
-     "pista": "Há uma **soma**, não um produto. Que acontece ao vetor nulo $\\mathbf{0}$?"},
-    {"tipo": "Cisalhamento", "M": np.array([[1.0, 0.0], [-2.0, 1.0]]),
-     "pista": "Uma coordenada fica igual; a outra recebe um acréscimo que depende da primeira."},
-    {"tipo": "Variação de tamanho", "M": np.array([[2.0, 0.0], [0.0, 2.0]]),
-     "pista": "Cada coordenada de $\\mathbf{x}'$ depende só da sua própria coordenada. Que acontece à direção?"},
-]
-
-_PNG_DV = {}  # os desenhos dos casos são sempre os mesmos: calculam-se uma só vez
-
-
-def _imagem_vetor(caso):
-    return caso["M"] @ XV if "M" in caso else XV + caso["b"]
-
-
-def _png_vetores(i):
-    if i not in _PNG_DV:
-        c = CASOS_DV[i]
-        x1 = _imagem_vetor(c)
-        fig = Figure(figsize=(3.4, 3.4))
-        ax = fig.subplots()
-        for v, cor, nome in ((XV, "tab:blue", r"$\mathbf{x}$"), (x1, "tab:red", r"$\mathbf{x}'$")):
-            ax.annotate("", xy=v, xytext=(0, 0), arrowprops=dict(arrowstyle="->", color=cor, lw=2))
-            ax.annotate(nome, v, textcoords="offset points", xytext=(6, 6), color=cor, fontsize=13)
-        _eixos(ax, 5)
-        buf = io.BytesIO()
-        fig.savefig(buf, format="png", dpi=100, bbox_inches="tight")
-        _PNG_DV[i] = buf.getvalue()
-    return _PNG_DV[i]
-
-
-def _regra_latex(caso):
-    if "M" in caso:
-        return rf"\mathbf{{x}}' = {latex_mat(caso['M'])}\,{latex_coluna(XV)}"
-    return rf"\mathbf{{x}}' = {latex_coluna(XV)} + {latex_coluna(caso['b'])}"
-
-
 @st.fragment
-def dv_classificar(modo_prof):
-    st.subheader("1 · Que transformação é esta?")
-    st.markdown(
-        "Em cada caso, o vetor $\\mathbf{x} = \\begin{bmatrix} 2 \\\\ 1 \\end{bmatrix}$ é transformado em $\\mathbf{x}'$. "
-        "Olha para a regra e para as setas e escolhe o **tipo** de transformação. "
-        "Usa o que já exploraste nos outros módulos, mas **não precisas de os ter feito todos**."
-    )
-    certas = 0
-    for i, par in enumerate(zip(CASOS_DV[::2], CASOS_DV[1::2])):
-        cols = st.columns(2)
-        for j, (col, caso) in enumerate(zip(cols, par)):
-            k = 2 * i + j
-            with col:
-                st.markdown(f"**Caso {k + 1}**")
-                st.latex(_regra_latex(caso) + rf" = {latex_coluna(_imagem_vetor(caso))}")
-                st.image(_png_vetores(k))
-                esc = st.radio("Tipo", TIPOS, index=None, key=f"dv_tipo{k}", horizontal=True,
-                               label_visibility="collapsed")
-                if esc is None:
-                    pass
-                elif esc == caso["tipo"]:
-                    certas += 1
-                    st.success("✅ Isso mesmo.")
-                else:
-                    st.error("❌ Não é esse tipo. Pista: " + caso["pista"])
-                if modo_prof:
-                    st.info(f"**Solução:** {caso['tipo']}")
-    st.progress(certas / len(CASOS_DV), text=f"{certas} de {len(CASOS_DV)} casos certos")
+def dv_produto():
+    st.subheader("O produto $M\\,X$")
+    st.markdown("Preenche as entradas de $M$ e de $X$. O resultado, $X' = M\\,X$, atualiza-se automaticamente.")
+    cM, cX, cR = st.columns([1, 1.6, 1.6])
+    with cM:
+        st.markdown("**$M$**")
+        a, b = st.columns(2)
+        m11 = a.number_input("m11", value=1.0, step=0.5, key="dv_m11", label_visibility="collapsed")
+        m12 = b.number_input("m12", value=0.0, step=0.5, key="dv_m12", label_visibility="collapsed")
+        m21 = a.number_input("m21", value=0.0, step=0.5, key="dv_m21", label_visibility="collapsed")
+        m22 = b.number_input("m22", value=1.0, step=0.5, key="dv_m22", label_visibility="collapsed")
+    with cX:
+        st.markdown("**$X$**")
+        a, b, c = st.columns(3)
+        x11 = a.number_input("x11", value=float(X[0, 0]), step=0.5, key="dv_x11", label_visibility="collapsed")
+        x12 = b.number_input("x12", value=float(X[0, 1]), step=0.5, key="dv_x12", label_visibility="collapsed")
+        x13 = c.number_input("x13", value=float(X[0, 2]), step=0.5, key="dv_x13", label_visibility="collapsed")
+        x21 = a.number_input("x21", value=float(X[1, 0]), step=0.5, key="dv_x21", label_visibility="collapsed")
+        x22 = b.number_input("x22", value=float(X[1, 1]), step=0.5, key="dv_x22", label_visibility="collapsed")
+        x23 = c.number_input("x23", value=float(X[1, 2]), step=0.5, key="dv_x23", label_visibility="collapsed")
+    M = np.array([[m11, m12], [m21, m22]])
+    XD = np.array([[x11, x12, x13], [x21, x22, x23]])
+    with cR:
+        st.markdown("**$X' = M\\,X$**")
+        st.latex(latex_mat(M @ XD))
+    st.latex(rf"X' = M\,X = {latex_mat(M)}{latex_mat(XD)} = {latex_mat(M @ XD)}")
 
 
-@st.fragment
-def dv_um_vetor(modo_prof):
-    st.divider()
-    st.subheader("2 · Um só vetor chega para decidir?")
-    st.markdown(
-        "Sabe-se apenas que $\\mathbf{x} = \\begin{bmatrix} 3 \\\\ 1 \\end{bmatrix}$ foi transformado em "
-        "$\\mathbf{x}' = \\begin{bmatrix} 3 \\\\ 4 \\end{bmatrix}$. Há **três** transformações, de tipos diferentes, "
-        "que fazem exatamente isto:"
-    )
-    cands = {
-        "Translação": (r"\mathbf{x}' = \mathbf{x} + \begin{bmatrix} 0 \\ 3 \end{bmatrix}",
-                       lambda v: v + np.array([0.0, 3.0])),
-        "Variação de tamanho": (r"\mathbf{x}' = \begin{bmatrix} 1 & 0 \\ 0 & 4 \end{bmatrix}\mathbf{x}",
-                                lambda v: np.array([[1.0, 0.0], [0.0, 4.0]]) @ v),
-        "Cisalhamento": (r"\mathbf{x}' = \begin{bmatrix} 1 & 0 \\ 1 & 1 \end{bmatrix}\mathbf{x}",
-                         lambda v: np.array([[1.0, 0.0], [1.0, 1.0]]) @ v),
-    }
-    cols = st.columns(3)
-    for col, (nome, (tex, _)) in zip(cols, cands.items()):
-        col.markdown(f"**{nome}**")
-        col.latex(tex)
-    st.markdown(
-        "Para as distinguir, precisas de **mais informação**: escolhe um segundo vetor $\\mathbf{y}$ e vê "
-        "onde cada uma das três o coloca."
-    )
-    c1, c2, _ = st.columns([1, 1, 2])
-    y1 = c1.number_input("1.ª coordenada de y", value=1.0, step=0.5, key="dv_y1")
-    y2 = c2.number_input("2.ª coordenada de y", value=2.0, step=0.5, key="dv_y2")
-    y = np.array([y1, y2])
-    linhas = {"Transformação": list(cands), "Imagem de y": [str(np.round(f(y), 3).tolist()) for _, f in cands.values()]}
-    st.markdown(tabela_md(pd.DataFrame(linhas)))
-    st.markdown(
-        "**Conjetura.** Que vetor $\\mathbf{y}$ deixa as três transformações a dar o **mesmo** resultado? "
-        "E qual o vetor mais informativo de todos, ou seja, o que separa logo a translação das outras duas? "
-        "Escreve a tua resposta no caderno abaixo."
-    )
-    if modo_prof:
-        st.info(
-            "**Resposta esperada:** as três coincidem apenas em $\\mathbf{y} = \\mathbf{x} = (3,1)$ (e as duas matrizes coincidem em todos os múltiplos de $\\mathbf{x}$). "
-            "O vetor mais informativo é o **vetor nulo**: a translação (por $\\mathbf{b}\\neq\\mathbf{0}$) **move a origem**, "
-            "enquanto o produto por uma matriz 2×2 a deixa **fixa**, $M\\mathbf{0} = \\mathbf{0}$. "
-            "Para separar a variação de tamanho do cisalhamento basta um $\\mathbf{y}$ que não seja múltiplo de $\\mathbf{x}$, por exemplo $\\mathbf{e}_2 = (0,1)$: "
-            "dá $(0,4)$ numa e $(0,1)$ na outra."
-        )
-
-
-@st.fragment
-def dv_sintese():
-    st.divider()
-    st.subheader("3 · Síntese")
-    st.markdown("Completa, com as tuas palavras, o que permite reconhecer cada tipo de transformação:")
-    perguntas = [
-        ("dv_s_transl", "**Translação:** o que acontece à origem? Como se escreve (soma ou produto)?"),
-        ("dv_s_scal", "**Variação de tamanho:** como é a matriz? Que acontece à direção de cada vetor?"),
-        ("dv_s_shear", "**Cisalhamento:** como é a matriz? Que coordenada fica igual?"),
-        ("dv_s_rot", "**Rotação:** que se conserva (comprimentos? ângulos?) e como é a matriz?"),
-    ]
-    respostas = {}
-    for chave, texto in perguntas:
-        st.markdown(texto)
-        respostas[chave] = st.text_area("Resposta", key=chave, height=80, label_visibility="collapsed")
-    st.markdown("**Conjetura da parte 2:**")
-    respostas["dv_s_conj"] = st.text_area("Conjetura", key="dv_s_conj", height=80, label_visibility="collapsed")
-    texto = "\n\n".join(f"## {k}\n{v}" for k, v in respostas.items())
-    st.download_button("Descarregar respostas (.md)", texto, file_name="distinguir_transformacoes.md", key="dv_dl")
-
-
-def modulo_distinguir(modo_prof):
-    st.header("Módulo D — Distinguir transformações")
-    st.markdown(
-        "Tarefa curta (cerca de 15 minutos) para **reconhecer** os quatro tipos de transformação de vetores: "
-        "**translação**, **variação de tamanho**, **cisalhamento** e **rotação**. "
-        "Nas três últimas multiplica-se uma matriz $M$ por uma matriz coluna; a translação é uma **soma** "
-        "de matrizes coluna."
-    )
-    dv_classificar(modo_prof)
-    dv_um_vetor(modo_prof)
-    dv_sintese()
+def modulo_exercicio(modo_prof):
+    st.header("Módulo D — Exercício")
+    dv_produto()
 
 
 # --------------------------------------------------------------------------
@@ -995,7 +866,7 @@ abas = st.tabs([
     "A · Variações de tamanho",
     "B · Cisalhamentos",
     "C · Rotações",
-    "D · Distinguir transformações",
+    "D · Exercício",
 ])
 
 # --------------------------------------------------------------------------
@@ -1035,4 +906,4 @@ with abas[3]:
     modulo_rotacoes(modo_prof)
 
 with abas[4]:
-    modulo_distinguir(modo_prof)
+    modulo_exercicio(modo_prof)
