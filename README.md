@@ -1,4 +1,4 @@
-# Como se move o triângulo? (Streamlit)
+# Como fica o triângulo? (Streamlit)
 
 ## Executar localmente
 ```
