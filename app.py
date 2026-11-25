@@ -29,7 +29,7 @@ ESTILO = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 html, body, .stApp, .stMarkdown, button, input, textarea, [data-baseweb="select"] { font-family: 'Inter', sans-serif; }
-.block-container { max-width: 1120px; padding-top: 2.2rem; padding-bottom: 4rem; }
+.block-container { max-width: 1120px; padding-top: 4.5rem; padding-bottom: 4rem; }
 .hero { margin: 0.2rem 0 1.6rem; padding-bottom: 1.1rem; border-bottom: 1px solid rgba(128,128,128,0.3); }
 .hero h1 { margin: 0; padding: 0; font-size: 2.4rem; font-weight: 700; letter-spacing: -0.025em; line-height: 1.15; }
 .hero p.sub { margin: 0.4rem 0 0; font-size: 1.2rem; font-weight: 400; opacity: 0.7; }
@@ -40,6 +40,7 @@ div[data-testid="stVerticalBlockBorderWrapper"] { border-radius: 14px; }
 div[data-testid="stMetric"] { background: rgba(47,109,181,0.07); border: 1px solid rgba(47,109,181,0.2);
                               border-radius: 12px; padding: 0.7rem 1rem; }
 div[data-testid="stAlert"] { border-radius: 10px; }
+div[data-testid="stTextInput"] label p { line-height: 1.5; overflow: visible; }
 button[data-baseweb="tab"] { font-weight: 600; }
 div[data-testid="stImage"] img { border-radius: 12px; border: 1px solid rgba(128,128,128,0.2); }
 </style>
