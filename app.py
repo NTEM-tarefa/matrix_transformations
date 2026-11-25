@@ -807,7 +807,7 @@ def modulo_rotacoes(modo_prof):
 
 
 # --------------------------------------------------------------------------
-# Módulo D — Exercício: rodar o vetor x por π/2 (em construção)
+# Módulo D — Exercício: levar o vetor x ao alvo por uma rotação (em construção)
 # --------------------------------------------------------------------------
 XV = np.array([2.0, 1.0])  # o vetor x, fixo
 ALVO_V = matriz_rotacao(np.pi / 2) @ XV  # alvo: x rodado de π/2, isto é (-1, 2)
@@ -852,17 +852,37 @@ def _parenteses(col, simbolo):
 
 
 @st.fragment
-def dv_produto():
-    st.subheader("Roda o vetor $\\mathbf{x}$ de $\\pi/2$")
+def dv_produto(modo_prof):
+    st.subheader("Leva o vetor $\\mathbf{x}$ até ao alvo")
     st.markdown(
-        "O vetor $\\mathbf{x} = (2,1)$ é fixo. O **alvo** (a tracejado) é $\\mathbf{x}$ rodado de $\\pi/2$ radianos. "
+        "O vetor $\\mathbf{x} = (2,1)$ é fixo. O **alvo** (a tracejado) é a imagem de $\\mathbf{x}$ por uma **rotação** em torno da origem. "
+        "Monta a matriz $M$ que faz $\\mathbf{x}' = M\\,\\mathbf{x}$ coincidir com o alvo. "
         "Cada entrada de $M$ tem um menu e, à direita, um campo com um valor $v$. "
         "Com **=** a entrada é o próprio $v$; com **=sin**, **=cos** (ou com sinal −) a entrada é "
         "$\\sin(v\\,\\pi)$, $\\cos(v\\,\\pi)$ (ou o simétrico): o ângulo é $v\\,\\pi$ radianos."
     )
+    with st.expander("💡 Dica: usa os números complexos"):
+        st.markdown(
+            "Identifica o vetor $(x,y)$ com o número complexo $z = x + iy$. "
+            "Assim, $\\mathbf{x}$ corresponde a $2 + i$, e o alvo corresponde a $-1 + 2i$.\n\n"
+            "Rodar um vetor de um ângulo $\\theta$ em torno da origem é **multiplicar** o seu número complexo por "
+            "$w = \\cos\\theta + i\\sin\\theta$.\n\n"
+            "1. Descobre o número complexo $w$ tal que $w\\,(2+i) = -1+2i$.\n"
+            "2. Lê em $w$ os valores de $\\cos\\theta$ (parte real) e de $\\sin\\theta$ (parte imaginária); "
+            "daí tiras o ângulo $\\theta$.\n"
+            "3. Multiplica $(\\cos\\theta + i\\sin\\theta)(x + iy)$ e separa a parte real da parte imaginária. "
+            "Escreve cada uma na forma $\\square\\,x + \\square\\,y$: os coeficientes são as **linhas** de $M$.\n"
+            "4. Escolhe, para cada entrada, o menu e o valor $v$ (lembra-te de que o ângulo é $v\\,\\pi$)."
+        )
+    if modo_prof:
+        st.info(
+            "**Solução:** $w = \\dfrac{-1+2i}{2+i} = i$, logo $\\cos\\theta = 0$, $\\sin\\theta = 1$ e $\\theta = \\pi/2$. "
+            "$M = \\begin{pmatrix} \\cos\\theta & -\\sin\\theta \\\\ \\sin\\theta & \\cos\\theta \\end{pmatrix}$: "
+            "menus `=cos`, `=-sin`, `=sin`, `=cos`, todos com $v = 0{,}5$."
+        )
     esq, dir_ = st.columns([2.3, 1])
     with esq:
-        c = st.columns([0.3, 1.1, 0.8, 1.1, 0.8, 0.3, 0.15, 0.8])
+        c = st.columns([0.3, 0.7, 0.7, 0.7, 0.7, 0.3, 0.15, 0.6])
         _parenteses(c[0], "("); _parenteses(c[5], ")")
         nomes = list(OPCOES_M)
         padrao = {(0, 0): 1.0, (0, 1): 0.0, (1, 0): 0.0, (1, 1): 1.0}
@@ -892,7 +912,7 @@ def dv_produto():
 
 def modulo_exercicio(modo_prof):
     st.header("Módulo D — Exercício")
-    dv_produto()
+    dv_produto(modo_prof)
 
 
 # --------------------------------------------------------------------------
