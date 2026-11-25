@@ -534,7 +534,4 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-abas = st.tabs(["A - variação de tamanho"])
-
-with abas[0]:
-    modulo_variacao_tamanho(modo_prof)
+modulo_variacao_tamanho(modo_prof)
