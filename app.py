@@ -807,18 +807,35 @@ def modulo_rotacoes(modo_prof):
 
 
 # --------------------------------------------------------------------------
-# Módulo D — Exercício: a transformação de um vetor x por M (em construção)
+# Módulo D — Exercício: rodar o vetor x por π/2 (em construção)
 # --------------------------------------------------------------------------
+XV = np.array([2.0, 1.0])  # o vetor x, fixo
+ALVO_V = matriz_rotacao(np.pi / 2) @ XV  # alvo: x rodado de π/2, isto é (-1, 2)
+
+# opções de cada entrada de M: nome -> (valor em função do ângulo θ, LaTeX)
+OPCOES_M = {
+    "nada": (lambda t: 0.0, "0"),
+    "-cos": (lambda t: -np.cos(t), r"-\cos\theta"),
+    "cos": (lambda t: np.cos(t), r"\cos\theta"),
+    "-sin": (lambda t: -np.sin(t), r"-\sin\theta"),
+    "sin": (lambda t: np.sin(t), r"\sin\theta"),
+}
+
+
 def latex_pmat(A):
     """Como latex_mat, mas com parênteses curvos."""
     return latex_mat(A).replace("bmatrix", "pmatrix")
 
 
-def desenhar_vetor(x, x1):
-    """Setas de x e de x' = M x a partir da origem."""
-    lim = max(3.0, float(np.ceil(np.abs(np.concatenate([x, x1])).max())) + 1)
+def desenhar_vetor(x, x1, alvo=None):
+    """Setas de x e de x' = M x a partir da origem; o vetor alvo, a tracejado."""
+    pts = [x, x1] + ([alvo] if alvo is not None else [])
+    lim = max(3.0, float(np.ceil(np.abs(np.concatenate(pts)).max())) + 1)
     fig = Figure(figsize=(5.5, 5.5))
     ax = fig.subplots()
+    if alvo is not None:
+        ax.annotate("", xy=alvo, xytext=(0, 0), arrowprops=dict(arrowstyle="->", color="k", lw=2, ls="--"))
+        ax.annotate("alvo", alvo, textcoords="offset points", xytext=(8, -14), color="k", fontsize=12)
     for v, cor, nome in ((x, "tab:blue", r"$\mathbf{x}$"), (x1, "tab:red", r"$\mathbf{x}'$")):
         ax.annotate("", xy=v, xytext=(0, 0), arrowprops=dict(arrowstyle="->", color=cor, lw=2.5))
         ax.plot(*v, "o", color=cor)
@@ -835,27 +852,38 @@ def _parenteses(col, simbolo):
 
 @st.fragment
 def dv_produto():
-    st.subheader("A transformação de um vetor")
-    st.markdown("Preenche as entradas de $M$ e de $\\mathbf{x}$. O vetor $\\mathbf{x}' = M\\,\\mathbf{x}$ e o gráfico atualizam-se automaticamente.")
+    st.subheader("Roda o vetor $\\mathbf{x}$ de $\\pi/2$")
+    st.markdown(
+        "O vetor $\\mathbf{x} = (2,1)$ é fixo. O **alvo** (a tracejado) é $\\mathbf{x}$ rodado de $\\pi/2$ radianos. "
+        "Escolhe, para cada entrada de $M$, uma das opções, onde $\\theta = c\\,\\pi$ é o ângulo escolhido por ti."
+    )
+    c_ang = st.number_input("c  (ângulo θ = c·π radianos)", value=0.0, step=0.05, format="%.3f", key="dv_c")
+    theta = c_ang * np.pi
+    st.caption(f"θ = {c_ang:g}·π ≈ {theta:.4f} rad")
     esq, dir_ = st.columns([1.4, 1])
     with esq:
-        c = st.columns([0.35, 1, 1, 0.35, 0.2, 0.35, 1, 0.35])
+        c = st.columns([0.35, 1.2, 1.2, 0.35, 0.3, 1])
         _parenteses(c[0], "("); _parenteses(c[3], ")")
-        _parenteses(c[5], "("); _parenteses(c[7], ")")
-        m11 = c[1].number_input("m11", value=1.0, step=0.5, key="dv_m11", label_visibility="collapsed")
-        m12 = c[2].number_input("m12", value=0.0, step=0.5, key="dv_m12", label_visibility="collapsed")
-        x1_ = c[6].number_input("x1", value=2.0, step=0.5, key="dv_x1", label_visibility="collapsed")
-        m21 = c[1].number_input("m21", value=0.0, step=0.5, key="dv_m21", label_visibility="collapsed")
-        m22 = c[2].number_input("m22", value=1.0, step=0.5, key="dv_m22", label_visibility="collapsed")
-        x2_ = c[6].number_input("x2", value=1.0, step=0.5, key="dv_x2", label_visibility="collapsed")
-        st.caption("$M$ (à esquerda) multiplica $\\mathbf{x}$ (à direita).")
-        M = np.array([[m11, m12], [m21, m22]])
-        x = np.array([x1_, x2_])
-        x1 = M @ x
-        st.latex(rf"\mathbf{{x}}' = M\,\mathbf{{x}} = {latex_pmat(M)}{latex_pmat(x.reshape(-1, 1))}"
+        nomes = list(OPCOES_M)
+        e11 = c[1].selectbox("m11", nomes, key="dv_m11", label_visibility="collapsed")
+        e12 = c[2].selectbox("m12", nomes, key="dv_m12", label_visibility="collapsed")
+        e21 = c[1].selectbox("m21", nomes, key="dv_m21", label_visibility="collapsed")
+        e22 = c[2].selectbox("m22", nomes, key="dv_m22", label_visibility="collapsed")
+        c[5].latex(latex_pmat(XV.reshape(-1, 1)))
+        esc = [[e11, e12], [e21, e22]]
+        M = np.array([[OPCOES_M[e][0](theta) for e in linha] for linha in esc])
+        M_simb = r"\begin{pmatrix} " + r" \\ ".join(" & ".join(OPCOES_M[e][1] for e in linha) for linha in esc) + r" \end{pmatrix}"
+        x1 = M @ XV
+        st.markdown("$M$ (à esquerda) multiplica $\\mathbf{x}$ (à direita).")
+        st.latex(rf"M = {M_simb} = {latex_pmat(M)}")
+        st.latex(rf"\mathbf{{x}}' = M\,\mathbf{{x}} = {latex_pmat(M)}{latex_pmat(XV.reshape(-1, 1))}"
                  rf" = {latex_pmat(x1.reshape(-1, 1))}")
+        if np.allclose(x1, ALVO_V):
+            st.success("✅ $\\mathbf{x}'$ coincide com o alvo!")
+        else:
+            st.error("❌ $\\mathbf{x}'$ ainda não coincide com o alvo.")
     with dir_:
-        mostrar(desenhar_vetor(x, x1))
+        mostrar(desenhar_vetor(XV, x1, ALVO_V))
 
 
 def modulo_exercicio(modo_prof):
