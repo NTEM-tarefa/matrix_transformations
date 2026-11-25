@@ -1179,7 +1179,7 @@ SECOES_J = [
             ("es_l_c1",
              ["Na imagem, $A'B'$ é horizontal e $C'D'$ é vertical; são sempre",
               (["perpendiculares", "paralelos", "oblíquos"], "perpendiculares"),
-              ", logo $C'D'$ é a altura de $A'B'C'$."],
+              "Logo, $C'D'$ é a altura de $A'B'C'$."],
              "um segmento horizontal e um vertical formam um ângulo reto."),
             ("es_l_c2",
              ["Por (b), $|A'B'|=$",
@@ -1188,9 +1188,8 @@ SECOES_J = [
               (["k·|CD|", "l·|CD|", "k·l·|CD|"], "l·|CD|")],
              "a base é horizontal (fator $k$) e a altura é vertical (fator $l$)."),
             ("es_l_c3",
-             ["Então a área da imagem, $\\tfrac12\\,|A'B'|\\,|C'D'|$, é",
-              (["k + l", "k·l", "k/l"], "k·l"),
-              "vezes a área original."],
+             ["Então a área da imagem, $\\tfrac12\\,|A'B'|\\,|C'D'|$, é igual à área original multiplicada por",
+              (["k + l", "k·l", "k/l"], "k·l")],
              "multiplica os fatores e deixa $\\tfrac12\\,|AB|\\,|CD|$."),
         ],
     },
@@ -1198,27 +1197,33 @@ SECOES_J = [
 
 
 def _linha_lacunas(chave, partes, dica):
-    """Uma frase com lacunas: texto e menus lado a lado; marca ✅ ou ❌ no fim. Devolve True se todas estiverem certas."""
-    pesos = [max(0.5, len(p.replace("$", "").replace("\\", "")) / 13) if isinstance(p, str) else 1.5 for p in partes]
-    cols = st.columns(pesos + [0.35], vertical_alignment="center")
-    escolhas = []
-    for i, (col, p) in enumerate(zip(cols, partes)):
+    """Frase com lacunas, uma linha por menu: o texto à esquerda, o menu (estreito) à direita e ✅/❌ no fim.
+    O texto que vem depois da última lacuna aparece numa linha própria. Devolve True se todas as lacunas estiverem certas."""
+    linhas, texto = [], ""
+    for p in partes:
         if isinstance(p, str):
-            col.markdown(p)
+            texto = (texto + " " + p).strip()
         else:
-            opcoes, certa = p
-            esc = col.selectbox(f"lacuna {i}", opcoes, index=None, placeholder="…", key=f"{chave}_{i}",
-                                label_visibility="collapsed")
-            escolhas.append((esc, certa))
-    feitas = [e for e, _ in escolhas if e is not None]
-    erradas = [e for e, c in escolhas if e is not None and e != c]
-    if erradas:
-        cols[-1].markdown("❌")
+            linhas.append((texto, p))
+            texto = ""
+    todas_certas, alguma_errada = True, False
+    for i, (txt, (opcoes, certa)) in enumerate(linhas):
+        c_txt, c_menu, c_marca = st.columns([3, 1.1, 0.25], vertical_alignment="center")
+        c_txt.markdown(txt)
+        esc = c_menu.selectbox(f"lacuna {i}", opcoes, index=None, placeholder="…", key=f"{chave}_{i}",
+                               label_visibility="collapsed")
+        if esc is None:
+            todas_certas = False
+        elif esc == certa:
+            c_marca.markdown("✅")
+        else:
+            c_marca.markdown("❌")
+            alguma_errada, todas_certas = True, False
+    if texto:
+        st.markdown(texto)
+    if alguma_errada:
         st.caption("Pista: " + dica)
-    elif len(feitas) == len(escolhas):
-        cols[-1].markdown("✅")
-        return True
-    return False
+    return todas_certas
 
 
 @st.fragment
@@ -1237,10 +1242,11 @@ def es_justificar(modo_prof):
         "Completa cada texto escolhendo, em cada lacuna, a opção certa."
     )
     for sec in SECOES_J:
-        st.markdown(f"#### {sec['titulo']}")
-        st.markdown(sec["enunciado"])
-        for chave, partes, dica in sec["linhas"]:
-            _linha_lacunas(chave, partes, dica)
+        with st.container(border=True):
+            st.markdown(f"**{sec['titulo']}**")
+            st.markdown(sec["enunciado"])
+            for chave, partes, dica in sec["linhas"]:
+                _linha_lacunas(chave, partes, dica)
     if modo_prof:
         st.info(
             "**Justificações modelo.**\n\n"
