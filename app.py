@@ -1,5 +1,5 @@
 """
-Como se move o triângulo?
+Como fica o triângulo?
 Tarefa exploratória sobre transformações no plano com matrizes (Streamlit).
 
 Separador A · variação de tamanho: explorar e responder, descobrir M, justificar.
@@ -13,7 +13,7 @@ import pandas as pd
 from matplotlib.figure import Figure
 import streamlit as st
 
-st.set_page_config(page_title="Como se move o triângulo?", page_icon="📐", layout="wide")
+st.set_page_config(page_title="Como fica o triângulo?", page_icon="📐", layout="wide")
 
 # --------------------------------------------------------------------------
 # Dados e funções auxiliares
@@ -34,7 +34,8 @@ html, body, .stApp, .stMarkdown, button, input, textarea, [data-baseweb="select"
         background: linear-gradient(135deg, rgba(47,109,181,0.14), rgba(47,109,181,0.04));
         border: 1px solid rgba(47,109,181,0.25); border-left: 7px solid #2F6DB5; }
 .hero h1 { margin: 0; padding: 0; font-size: 2.1rem; font-weight: 700; letter-spacing: -0.02em; }
-.hero p { margin: 0.35rem 0 0; opacity: 0.75; font-size: 1.02rem; }
+.hero p { margin: 0.35rem 0 0; opacity: 0.7; font-size: 1rem; }
+.hero p.sub { opacity: 0.9; font-size: 1.2rem; font-weight: 500; }
 h2 { font-weight: 700; letter-spacing: -0.01em; }
 h3 { font-weight: 600; color: #2F6DB5; }
 div[data-testid="stVerticalBlockBorderWrapper"] { border-radius: 14px; }
@@ -486,7 +487,6 @@ def _exportar(prefixo, titulo, respostas, secoes, ficheiro):
 
 
 def modulo_variacao_tamanho(modo_prof):
-    st.header("Variação de tamanho")
     st.markdown(
         "**Objetivo da tarefa:** caracterizar geometricamente a transformação por **variação de tamanho**, "
         "isto é, descobrir o que ela faz aos pontos, aos segmentos e à área de uma figura, e justificar porquê. "
@@ -529,8 +529,9 @@ with col_prof:
                   on_click=lambda: st.session_state.update(senha_prof=""))
 
 st.markdown(
-    '<div class="hero"><h1>Como se move o triângulo?</h1>'
-    '<p>Tarefa exploratória sobre transformações no plano com matrizes · para trabalhar em pares</p></div>',
+    '<div class="hero"><h1>Como fica o triângulo?</h1>'
+    '<p class="sub">Variações de tamanho por aplicação de matrizes</p>'
+    '<p>12.º ano - Matemática A</p></div>',
     unsafe_allow_html=True,
 )
 
