@@ -85,6 +85,9 @@ def nota_objetivo(modo_prof, conhecimento, capacidade, evidencia):
     )
 
 
+VALORES_KL = [float(v) for v in np.arange(-3.0, 3.01, 0.25) if abs(v) > 1e-9]  # de −3 a 3, sem o zero
+
+
 def desenhar_variacao_tamanho(k, l, pontos=True, seg_h=False, seg_v=False, quadrado=False):
     """Triângulo X e a sua imagem por diag(k, l), com ajudas visuais opcionais:
     deslocamento de cada ponto, base AB (segmento horizontal) e altura CD (segmento vertical) com as suas imagens,
@@ -96,7 +99,7 @@ def desenhar_variacao_tamanho(k, l, pontos=True, seg_h=False, seg_v=False, quadr
     Q = np.array([[0, 1, 1, 0], [0, 0, 1, 1]], dtype=float)
     ext = [np.abs(X).max(), np.abs(X1).max(), 5.0]
     if quadrado:
-        ext.append(max(k, l))
+        ext.append(max(abs(k), abs(l)))
     lim = float(np.ceil(max(ext))) + 1
     fig = Figure(figsize=(5.5, 5.5))
     ax = fig.subplots()
@@ -137,10 +140,10 @@ def es_explorar(modo_prof):
     st.subheader("Parte 1 · Explora e responde")
     nota_objetivo(
         modo_prof,
-        "Uma variação de tamanho, $\\mathrm{diag}(k,l)$, leva $(x,y)$ a $(kx,\\,ly)$; um segmento horizontal continua horizontal, com o comprimento multiplicado por $k$, "
-        "e um segmento vertical continua vertical, com o comprimento multiplicado por $l$; a área fica multiplicada por $k\\,l$.",
+        "Uma variação de tamanho, $\\mathrm{diag}(k,l)$, leva $(x,y)$ a $(kx,\\,ly)$; um segmento horizontal continua horizontal, com o comprimento multiplicado por $|k|$, "
+        "e um segmento vertical continua vertical, com o comprimento multiplicado por $|l|$; a área fica multiplicada por $|k\\,l|$. Um fator negativo reflete a figura.",
         "Identificar, por observação (gráfico e valores numéricos) e testando com vários valores de $k$ e $l$, o que a transformação faz a "
-        "(a) cada ponto, (b) cada segmento horizontal e vertical e (c) à área. As opções erradas refletem ideias comuns (somar em vez de multiplicar, trocar $k$ e $l$).",
+        "(a) cada ponto, (b) cada segmento horizontal e vertical e (c) à área. As opções erradas refletem ideias comuns (somar em vez de multiplicar, trocar $k$ e $l$, esquecer o módulo).",
         "O aluno escolhe as três opções corretas depois de testar com diferentes valores de $k$ e $l$.",
     )
     st.markdown(
@@ -152,15 +155,15 @@ def es_explorar(modo_prof):
              r" = \begin{bmatrix} 1 & 4 & 2 \\ 1 & 1 & 3 \end{bmatrix}"
              r" \ \longmapsto\ X' = M\,X = \begin{bmatrix} | & | & | \\ M\mathbf{x}_1 & M\mathbf{x}_2 & M\mathbf{x}_3 \\ | & | & | \end{bmatrix}")
     st.markdown(
-        "Move $k$ e $l$, experimentando valores **iguais** e **diferentes**, maiores e menores do que 1. "
+        "Move $k$ e $l$, experimentando valores **iguais** e **diferentes**, **positivos** e **negativos**, maiores e menores do que 1 (em módulo). "
         "Escolhe em baixo **o que estás a investigar**: o gráfico e os dados mudam em conformidade. "
         "Responde às três perguntas."
     )
     foco = st.radio("A investigar", ["(a) Pontos", "(b) Segmentos", "(c) Área"], key="es_foco", horizontal=True)
     c1, c2 = st.columns([1, 1.4])
     with c1:
-        k = st.slider("k", 0.25, 3.0, 1.0, 0.25, key="es_k1")
-        l = st.slider("l", 0.25, 3.0, 1.0, 0.25, key="es_l1")
+        k = st.select_slider("k", options=VALORES_KL, value=1.0, key="es_k1", format_func=_f)
+        l = st.select_slider("l", options=VALORES_KL, value=1.0, key="es_l1", format_func=_f)
         M = np.array([[k, 0.0], [0.0, l]])
         st.latex(rf"M = {latex_mat(M)}")
         X1 = M @ X
@@ -189,20 +192,21 @@ def es_explorar(modo_prof):
            ["$(x+k,\\ y+l)$", "$(kx,\\ ly)$", "$(kx,\\ y)$", "$(lx,\\ ky)$"], "$(kx,\\ ly)$", dica, horizontal=False)
     st.markdown("**(b) Segmentos.** Que acontece a um segmento horizontal (a base $AB$) e a um segmento vertical (a altura $CD$)?")
     _passo("es_m1b", "Escolhe a opção correta:",
-           ["Continuam horizontal e vertical; o horizontal fica multiplicado por $k$ e o vertical por $l$.",
-            "Continuam horizontal e vertical; o horizontal fica multiplicado por $l$ e o vertical por $k$.",
+           ["Continuam horizontal e vertical; o comprimento do horizontal fica multiplicado por $|k|$ e o do vertical por $|l|$.",
+            "Continuam horizontal e vertical; o comprimento do horizontal fica multiplicado por $|l|$ e o do vertical por $|k|$.",
             "Continuam horizontal e vertical, mas os comprimentos não mudam.",
             "Ficam oblíquos."],
-           "Continuam horizontal e vertical; o horizontal fica multiplicado por $k$ e o vertical por $l$.", dica, horizontal=False)
+           "Continuam horizontal e vertical; o comprimento do horizontal fica multiplicado por $|k|$ e o do vertical por $|l|$.",
+           dica, horizontal=False)
     st.markdown("**(c) Área.** Como se relaciona a área da imagem com a da figura original? *(O quadrado unitário pode ajudar.)*")
     _passo("es_m1c", "Escolhe a opção correta:",
-           ["Fica multiplicada por $k+l$.", "Fica multiplicada por $k$.", "Fica multiplicada por $k\\,l$.", "Mantém-se."],
-           "Fica multiplicada por $k\\,l$.", dica, horizontal=False)
+           ["Fica multiplicada por $k+l$.", "Fica multiplicada por $k\\,l$.", "Fica multiplicada por $|k\\,l|$.", "Mantém-se."],
+           "Fica multiplicada por $|k\\,l|$.", dica, horizontal=False)
     if modo_prof:
         st.info(
             "**Respostas esperadas:** (a) $(x,y)\\mapsto(k\\,x,\\ l\\,y)$: a abcissa multiplica por $k$ e a ordenada por $l$. "
-            "(b) Um segmento horizontal continua horizontal e o seu comprimento multiplica por $k$ (em módulo); um segmento vertical continua vertical e o seu comprimento multiplica por $l$. "
-            "(c) A área fica multiplicada por $k\\,l$ (o quadrado unitário passa a um retângulo $k\\times l$)."
+            "(b) Um segmento horizontal continua horizontal e o seu comprimento multiplica por $|k|$; um segmento vertical continua vertical e o seu comprimento multiplica por $|l|$. "
+            "(c) A área fica multiplicada por $|k\\,l|$ (o quadrado unitário passa a um retângulo $|k|\\times|l|$; um fator negativo reflete a figura, mas a área nunca é negativa)."
         )
 
 
@@ -245,6 +249,7 @@ def es_inverso(modo_prof):
     alvos = [
         ("Alvo 1", np.diag([2.0, 1.0]) @ X, "$M=\\begin{bmatrix}2&0\\\\0&1\\end{bmatrix}$"),
         ("Alvo 2", np.diag([2.0, 0.5]) @ X, "$M=\\begin{bmatrix}2&0\\\\0&0{,}5\\end{bmatrix}$"),
+        ("Alvo 3", np.diag([-2.0, 1.0]) @ X, "$M=\\begin{bmatrix}-2&0\\\\0&1\\end{bmatrix}$"),
     ]
     esc = st.selectbox("Desafio", [a[0] for a in alvos], key="es_d3")
     idx = [a[0] for a in alvos].index(esc)
@@ -338,14 +343,14 @@ SECOES_J = [
              "um segmento horizontal e um vertical formam um ângulo reto."),
             ("es_l_c2",
              ["Por (b), $|A'B'|=$",
-              (["k·|AB|", "l·|AB|", "k·l·|AB|"], "k·|AB|"),
+              (["|k|·|AB|", "|l|·|AB|", "|k·l|·|AB|"], "|k|·|AB|"),
               "e $|C'D'|=$",
-              (["k·|CD|", "l·|CD|", "k·l·|CD|"], "l·|CD|")],
-             "a base é horizontal (fator $k$) e a altura é vertical (fator $l$)."),
+              (["|k|·|CD|", "|l|·|CD|", "|k·l|·|CD|"], "|l|·|CD|")],
+             "a base é horizontal (fator $|k|$) e a altura é vertical (fator $|l|$)."),
             ("es_l_c3",
              ["Então a área da imagem, $\\tfrac12\\,|A'B'|\\,|C'D'|$, é igual à área original multiplicada por",
-              (["k + l", "k·l", "k/l"], "k·l")],
-             "multiplica os fatores e deixa $\\tfrac12\\,|AB|\\,|CD|$."),
+              (["k + l", "k·l", "|k·l|"], "|k·l|")],
+             "multiplica os fatores $|k|$ e $|l|$ e deixa $\\tfrac12\\,|AB|\\,|CD|$; uma área nunca é negativa."),
         ],
     },
 ]
@@ -412,7 +417,7 @@ def es_justificar(modo_prof):
             "logo o segmento é vertical, de comprimento $|l|\\,|y_2-y_1|$.\n\n"
             "(c) A base $AB$ é horizontal e a altura $CD$ é vertical, logo $A'B'\\perp C'D'$ e $C'D'$ é a altura de $A'B'C'$. "
             "Então $\\text{área}'=\\tfrac12\\,|A'B'|\\,|C'D'|=\\tfrac12\\,(|k||AB|)(|l||CD|)=|k\\,l|\\cdot\\tfrac12|AB||CD|$. "
-            "(Para figuras quaisquer, decompõe-se em triângulos desta forma, ou usa-se o quadrado unitário, que passa a um retângulo $k\\times l$.)"
+            "(Para figuras quaisquer, decompõe-se em triângulos desta forma, ou usa-se o quadrado unitário, que passa a um retângulo $|k|\\times|l|$.)"
         )
 
 
@@ -422,6 +427,7 @@ RESPOSTAS_ES = [
     ("Parte 1 · (c) área", "es_m1c"),
     ("Parte 2 · alvo 1, explicação", "es_t3_0"),
     ("Parte 2 · alvo 2, explicação", "es_t3_1"),
+    ("Parte 2 · alvo 3, explicação", "es_t3_2"),
 ]
 
 
