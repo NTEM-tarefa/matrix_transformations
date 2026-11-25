@@ -916,6 +916,170 @@ def modulo_exercicio(modo_prof):
 
 
 # --------------------------------------------------------------------------
+# Escalonamento — rascunho de uma tarefa curta, com o objetivo de cada parte indicado
+# --------------------------------------------------------------------------
+def nota_objetivo(conhecimento, capacidade, evidencia):
+    """Caixa de rascunho: o que se pretende desenvolver na parte em causa."""
+    st.info(
+        "🎯 **Rascunho · o que se pretende desenvolver nesta parte**\n\n"
+        f"- **Conhecimento:** {conhecimento}\n"
+        f"- **Capacidade:** {capacidade}\n"
+        f"- **Evidência:** {evidencia}"
+    )
+
+
+@st.fragment
+def es_explorar():
+    st.subheader("Parte 1 · Explorar")
+    nota_objetivo(
+        "Uma variação de tamanho multiplica a abcissa por $k$ e a ordenada por $l$: $(x,y)\\mapsto(kx,\\,ly)$; "
+        "a sua matriz é diagonal, $\\mathrm{diag}(k,l)$.",
+        "Relacionar os valores de $k$ e $l$ com o efeito na figura (ampliação, redução, deformação) e passar da regra "
+        "$x'=kx,\\ y'=ly$ para a matriz e vice-versa.",
+        "O aluno descreve, com as suas palavras, o papel de $k$ e o de $l$, e distingue $k=l$ de $k\\neq l$.",
+    )
+    st.markdown(
+        "Move os seletores. Com $k$ e $l$ **iguais** e depois **diferentes**, observa o triângulo, a matriz e as coordenadas "
+        "dos vértices. Responde, no fim, às perguntas."
+    )
+    c1, c2 = st.columns([1, 1.3])
+    with c1:
+        k = st.slider("k  (fator horizontal)", 0.25, 4.0, 1.0, 0.25, key="es_k1")
+        l = st.slider("l  (fator vertical)", 0.25, 4.0, 1.0, 0.25, key="es_l1")
+        M = np.array([[k, 0.0], [0.0, l]])
+        st.latex(rf"M = {latex_mat(M)}")
+        st.latex(rf"x' = {_f(k)}\,x, \qquad y' = {_f(l)}\,y")
+        st.latex(rf"X' = M\,X = {latex_produto(M, X)}")
+    with c2:
+        mostrar(desenhar([X, M @ X], ["original", "imagem"]))
+    st.markdown(
+        "1. O que faz $k$ à figura? E $l$?\n"
+        "2. Que se passa quando $k = l$? E quando $k \\neq l$?\n"
+        "3. Que acontece quando $k<1$? E quando $k=1$?"
+    )
+    st.text_area("As tuas respostas", key="es_t1", height=100, label_visibility="collapsed")
+
+
+@st.fragment
+def es_prever():
+    st.subheader("Parte 2 · Prever e verificar")
+    nota_objetivo(
+        "O produto de uma matriz diagonal por uma matriz coluna: $\\begin{bmatrix}k&0\\\\0&l\\end{bmatrix}\\begin{bmatrix}x\\\\y\\end{bmatrix}"
+        "=\\begin{bmatrix}kx\\\\ly\\end{bmatrix}$.",
+        "Calcular a imagem de um ponto, sem ajuda da app, usando o produto linha por coluna (e reconhecer que as entradas nulas "
+        "não contribuem).",
+        "O aluno acerta nas coordenadas de $\\mathbf{x}'$ nos três casos, incluindo um fator inferior a 1 e um não inteiro.",
+    )
+    st.markdown("Calcula **à mão** a imagem do vértice indicado e escreve as coordenadas. A app diz-te se acertaste.")
+    itens = [
+        ("B", X[:, 1], 2.0, 3.0),
+        ("B", X[:, 1], 0.5, 2.0),
+        ("C", X[:, 2], 1.5, 2.0),
+    ]
+    for i, (nome, v, k, l) in enumerate(itens):
+        M = np.array([[k, 0.0], [0.0, l]])
+        c1, c2, c3 = st.columns([2.2, 1, 1])
+        c1.latex(rf"{latex_mat(M)}{latex_coluna(v)} = \begin{{bmatrix}} ? \\ ? \end{{bmatrix}}")
+        xa = c2.number_input(f"x′ (caso {i + 1})", value=None, step=0.5, key=f"es_p{i}_x", placeholder="x′")
+        ya = c3.number_input(f"y′ (caso {i + 1})", value=None, step=0.5, key=f"es_p{i}_y", placeholder="y′")
+        if xa is not None and ya is not None:
+            if np.allclose([xa, ya], M @ v):
+                st.success(f"✅ Caso {i + 1}: certo.")
+            else:
+                st.error(f"❌ Caso {i + 1}: confere cada coordenada: a primeira usa só a abcissa de {nome}, a segunda só a ordenada.")
+
+
+@st.fragment
+def es_inverso():
+    st.subheader("Parte 3 · Descobrir os fatores")
+    nota_objetivo(
+        "Cada coordenada da imagem é a da figura original multiplicada por um fator: $k=x'/x$ e $l=y'/y$.",
+        "Raciocinar no sentido inverso: a partir da figura e do alvo, determinar $k$ e $l$ comparando coordenadas "
+        "correspondentes (basta um vértice).",
+        "O aluno encontra $k$ e $l$ sem tentativa e erro prolongada e justifica-os com um vértice.",
+    )
+    alvos = [
+        ("Alvo 1", np.diag([2.0, 1.0]) @ X, (2.0, 1.0)),
+        ("Alvo 2", np.diag([0.5, 2.0]) @ X, (0.5, 2.0)),
+    ]
+    esc = st.selectbox("Desafio", [a[0] for a in alvos], key="es_d3")
+    idx = [a[0] for a in alvos].index(esc)
+    alvo = alvos[idx][1]
+    st.markdown("Escolhe $k$ e $l$ para que a imagem coincida com o alvo (a tracejado).")
+    c1, c2 = st.columns([1, 1.3])
+    with c1:
+        k = st.slider("k", 0.25, 4.0, 1.0, 0.25, key=f"es_k3_{idx}")
+        l = st.slider("l", 0.25, 4.0, 1.0, 0.25, key=f"es_l3_{idx}")
+        M = np.array([[k, 0.0], [0.0, l]])
+        st.latex(rf"M = {latex_mat(M)}")
+        if np.allclose(M @ X, alvo):
+            st.success("✅ Coincide com o alvo!")
+        else:
+            st.error("❌ Ainda não coincide com o alvo.")
+    with c2:
+        mostrar(desenhar([X, M @ X], ["original", "imagem"], alvo=alvo))
+    st.markdown("Explica como podias ter descoberto $k$ e $l$ **olhando só para um vértice** e para o seu correspondente no alvo.")
+    st.text_area("A tua explicação", key=f"es_t3_{idx}", height=80, label_visibility="collapsed")
+
+
+@st.fragment
+def es_conjeturar(modo_prof):
+    st.subheader("Parte 4 · Conjeturar e justificar")
+    nota_objetivo(
+        "Efeito de $\\mathrm{diag}(k,l)$ sobre a área (razão $kl$, o determinante) e sobre os ângulos (conservam-se só se $k=l$).",
+        "Induzir uma regra a partir de dados, formulá-la em linguagem matemática e justificá-la (a base fica multiplicada por $k$ e a altura por $l$).",
+        "O aluno enuncia «razão das áreas $=k\\,l$» e «a forma mantém-se se e só se $k=l$», e justifica a primeira com base e altura.",
+    )
+    casos = [(2.0, 2.0), (2.0, 3.0), (0.5, 4.0), (3.0, 1.0), (1.5, 1.5)]
+    linhas = []
+    for k, l in casos:
+        X1 = np.diag([k, l]) @ X
+        linhas.append({
+            "k": _f(k), "l": _f(l),
+            "razão das áreas": f"{area(X1) / area(X):.3f}",
+            "ângulos iguais?": "sim" if np.allclose(angulos_internos(X), angulos_internos(X1)) else "não",
+        })
+    st.markdown(tabela_md(pd.DataFrame(linhas)))
+    st.markdown(
+        "1. Que relação vês entre $k$, $l$ e a **razão das áreas**?\n"
+        "2. Em que casos os **ângulos** se mantêm?\n"
+        "3. Justifica a tua conjetura sobre as áreas. *(Sugestão: pensa na base e na altura do triângulo.)*"
+    )
+    st.text_area("As tuas conjeturas e justificações", key="es_t4", height=140, label_visibility="collapsed")
+    if modo_prof:
+        st.info(
+            "**Resposta esperada:** razão das áreas $=k\\,l=\\det M$; os ângulos mantêm-se se e só se $k=l$ (a figura fica semelhante à original). "
+            "Justificação: com um lado horizontal por base, a base fica multiplicada por $k$ e a altura por $l$, logo a área, $\\tfrac12\\,b\\,h$, por $k\\,l$."
+        )
+
+
+def modulo_escalonamento_draft(modo_prof):
+    st.header("Escalonamento (rascunho)")
+    st.markdown(
+        "Tarefa curta sobre variações de tamanho. Em cada parte, a caixa 🎯 diz que conhecimento ou capacidade se pretende desenvolver, "
+        "e que evidência a mostra. Estas caixas são para discutir; antes de dar a tarefa aos alunos, retiram-se ou passam ao modo professor."
+    )
+    st.markdown("**Mapa das partes**")
+    st.markdown(tabela_md(pd.DataFrame({
+        "Parte": ["1 · Explorar", "2 · Prever e verificar", "3 · Descobrir os fatores", "4 · Conjeturar e justificar"],
+        "Capacidade principal": [
+            "Relacionar $k$, $l$ com o efeito geométrico",
+            "Calcular o produto de uma matriz diagonal por uma coluna",
+            "Raciocinar no sentido inverso (da imagem para os fatores)",
+            "Induzir, enunciar e justificar uma regra (área, ângulos)",
+        ],
+        "Tipo de pensamento": ["Observação e descrição", "Cálculo", "Dedução", "Generalização e prova"],
+    })))
+    es_explorar()
+    st.divider()
+    es_prever()
+    st.divider()
+    es_inverso()
+    st.divider()
+    es_conjeturar(modo_prof)
+
+
+# --------------------------------------------------------------------------
 # Barra lateral
 # --------------------------------------------------------------------------
 with st.sidebar:
@@ -939,6 +1103,7 @@ abas = st.tabs([
     "B · Cisalhamentos",
     "C · Rotações",
     "D · Exercício",
+    "escalonamento - draft",
 ])
 
 # --------------------------------------------------------------------------
@@ -979,3 +1144,6 @@ with abas[3]:
 
 with abas[4]:
     modulo_exercicio(modo_prof)
+
+with abas[5]:
+    modulo_escalonamento_draft(modo_prof)
