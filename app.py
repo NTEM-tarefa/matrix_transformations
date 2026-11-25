@@ -1233,7 +1233,7 @@ def es_justificar(modo_prof):
         "O aluno completa corretamente as lacunas dos três textos.",
     )
     st.markdown(
-        "Na Parte 1 viste **exemplos**. Agora vais mostrar que as regras valem **sempre**. "
+        "Na Parte 1 descobriste algumas regras. Agora o objetivo é justificá-las. "
         "Completa cada texto escolhendo, em cada lacuna, a opção certa."
     )
     for sec in SECOES_J:
