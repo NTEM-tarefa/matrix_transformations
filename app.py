@@ -807,35 +807,55 @@ def modulo_rotacoes(modo_prof):
 
 
 # --------------------------------------------------------------------------
-# Módulo D — Exercício: o produto M·X (em construção)
+# Módulo D — Exercício: a transformação de um vetor x por M (em construção)
 # --------------------------------------------------------------------------
+def latex_pmat(A):
+    """Como latex_mat, mas com parênteses curvos."""
+    return latex_mat(A).replace("bmatrix", "pmatrix")
+
+
+def desenhar_vetor(x, x1):
+    """Setas de x e de x' = M x a partir da origem."""
+    lim = max(3.0, float(np.ceil(np.abs(np.concatenate([x, x1])).max())) + 1)
+    fig = Figure(figsize=(5.5, 5.5))
+    ax = fig.subplots()
+    for v, cor, nome in ((x, "tab:blue", r"$\mathbf{x}$"), (x1, "tab:red", r"$\mathbf{x}'$")):
+        ax.annotate("", xy=v, xytext=(0, 0), arrowprops=dict(arrowstyle="->", color=cor, lw=2.5))
+        ax.plot(*v, "o", color=cor)
+        ax.annotate(f"{nome} = ({_f(v[0])}, {_f(v[1])})", v, textcoords="offset points",
+                    xytext=(8, 8), color=cor, fontsize=12)
+    _eixos(ax, lim)
+    return fig
+
+
+def _parenteses(col, simbolo):
+    col.markdown(f"<div style='font-size:5.6rem;line-height:1;font-weight:200;text-align:center'>{simbolo}</div>",
+                 unsafe_allow_html=True)
+
+
 @st.fragment
 def dv_produto():
-    st.subheader("O produto $M\\,X$")
-    st.markdown("Preenche as entradas de $M$ e de $X$. O resultado, $X' = M\\,X$, atualiza-se automaticamente.")
-    cM, cX, cR = st.columns([1, 1.6, 1.6])
-    with cM:
-        st.markdown("**$M$**")
-        a, b = st.columns(2)
-        m11 = a.number_input("m11", value=1.0, step=0.5, key="dv_m11", label_visibility="collapsed")
-        m12 = b.number_input("m12", value=0.0, step=0.5, key="dv_m12", label_visibility="collapsed")
-        m21 = a.number_input("m21", value=0.0, step=0.5, key="dv_m21", label_visibility="collapsed")
-        m22 = b.number_input("m22", value=1.0, step=0.5, key="dv_m22", label_visibility="collapsed")
-    with cX:
-        st.markdown("**$X$**")
-        a, b, c = st.columns(3)
-        x11 = a.number_input("x11", value=float(X[0, 0]), step=0.5, key="dv_x11", label_visibility="collapsed")
-        x12 = b.number_input("x12", value=float(X[0, 1]), step=0.5, key="dv_x12", label_visibility="collapsed")
-        x13 = c.number_input("x13", value=float(X[0, 2]), step=0.5, key="dv_x13", label_visibility="collapsed")
-        x21 = a.number_input("x21", value=float(X[1, 0]), step=0.5, key="dv_x21", label_visibility="collapsed")
-        x22 = b.number_input("x22", value=float(X[1, 1]), step=0.5, key="dv_x22", label_visibility="collapsed")
-        x23 = c.number_input("x23", value=float(X[1, 2]), step=0.5, key="dv_x23", label_visibility="collapsed")
-    M = np.array([[m11, m12], [m21, m22]])
-    XD = np.array([[x11, x12, x13], [x21, x22, x23]])
-    with cR:
-        st.markdown("**$X' = M\\,X$**")
-        st.latex(latex_mat(M @ XD))
-    st.latex(rf"X' = M\,X = {latex_mat(M)}{latex_mat(XD)} = {latex_mat(M @ XD)}")
+    st.subheader("A transformação de um vetor")
+    st.markdown("Preenche as entradas de $M$ e de $\\mathbf{x}$. O vetor $\\mathbf{x}' = M\\,\\mathbf{x}$ e o gráfico atualizam-se automaticamente.")
+    esq, dir_ = st.columns([1.4, 1])
+    with esq:
+        c = st.columns([0.35, 1, 1, 0.35, 0.2, 0.35, 1, 0.35])
+        _parenteses(c[0], "("); _parenteses(c[3], ")")
+        _parenteses(c[5], "("); _parenteses(c[7], ")")
+        m11 = c[1].number_input("m11", value=1.0, step=0.5, key="dv_m11", label_visibility="collapsed")
+        m12 = c[2].number_input("m12", value=0.0, step=0.5, key="dv_m12", label_visibility="collapsed")
+        x1_ = c[6].number_input("x1", value=2.0, step=0.5, key="dv_x1", label_visibility="collapsed")
+        m21 = c[1].number_input("m21", value=0.0, step=0.5, key="dv_m21", label_visibility="collapsed")
+        m22 = c[2].number_input("m22", value=1.0, step=0.5, key="dv_m22", label_visibility="collapsed")
+        x2_ = c[6].number_input("x2", value=1.0, step=0.5, key="dv_x2", label_visibility="collapsed")
+        st.caption("$M$ (à esquerda) multiplica $\\mathbf{x}$ (à direita).")
+        M = np.array([[m11, m12], [m21, m22]])
+        x = np.array([x1_, x2_])
+        x1 = M @ x
+        st.latex(rf"\mathbf{{x}}' = M\,\mathbf{{x}} = {latex_pmat(M)}{latex_pmat(x.reshape(-1, 1))}"
+                 rf" = {latex_pmat(x1.reshape(-1, 1))}")
+    with dir_:
+        mostrar(desenhar_vetor(x, x1))
 
 
 def modulo_exercicio(modo_prof):
