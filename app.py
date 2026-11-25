@@ -979,7 +979,7 @@ def desenhar_escalonamento(k, l, pontos=True, seg_h=False, seg_v=False, quadrado
 
 @st.fragment
 def es_explorar(modo_prof):
-    st.subheader("Parte 1 · Explorar e conjeturar")
+    st.subheader("Parte 1 · Explora e responde")
     nota_objetivo(
         modo_prof,
         "Uma variação de tamanho, $\\mathrm{diag}(k,l)$, leva $(x,y)$ a $(kx,\\,ly)$; um segmento horizontal continua horizontal, com o comprimento multiplicado por $k$, "
