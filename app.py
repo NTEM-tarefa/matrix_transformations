@@ -918,8 +918,10 @@ def modulo_exercicio(modo_prof):
 # --------------------------------------------------------------------------
 # Escalonamento — rascunho de uma tarefa curta, com o objetivo de cada parte indicado
 # --------------------------------------------------------------------------
-def nota_objetivo(conhecimento, capacidade, evidencia):
-    """Caixa de rascunho: o que se pretende desenvolver na parte em causa."""
+def nota_objetivo(modo_prof, conhecimento, capacidade, evidencia):
+    """Caixa para o professor: o que se pretende desenvolver na parte em causa (só no modo professor)."""
+    if not modo_prof:
+        return
     st.info(
         "🎯 **Rascunho · o que se pretende desenvolver nesta parte**\n\n"
         f"- **Conhecimento:** {conhecimento}\n"
@@ -979,6 +981,7 @@ def desenhar_escalonamento(k, l, pontos=True, seg_h=False, seg_v=False, quadrado
 def es_explorar(modo_prof):
     st.subheader("Parte 1 · Explorar e conjeturar")
     nota_objetivo(
+        modo_prof,
         "Uma variação de tamanho, $\\mathrm{diag}(k,l)$, leva $(x,y)$ a $(kx,\\,ly)$; um segmento horizontal continua horizontal, com o comprimento multiplicado por $k$, "
         "e um segmento vertical continua vertical, com o comprimento multiplicado por $l$; a área fica multiplicada por $k\\,l$.",
         "Formular **conjeturas** a partir da observação (gráfico e valores numéricos) sobre o que a transformação faz a "
@@ -986,37 +989,37 @@ def es_explorar(modo_prof):
         "O aluno escreve uma regra para as coordenadas, diz que os segmentos mantêm a direção, indica como mudam os comprimentos, e relaciona as áreas com $k$ e $l$.",
     )
     st.markdown(
-        "Move $k$ e $l$ e liga as ajudas no gráfico (uma de cada vez, para cada pergunta). "
-        "Experimenta valores **iguais** e **diferentes**, maiores e menores do que 1."
+        "Move $k$ e $l$, experimentando valores **iguais** e **diferentes**, maiores e menores do que 1. "
+        "Escolhe em baixo **o que estás a investigar**: o gráfico e os dados mudam em conformidade. "
+        "Regista cada conjetura na caixa respetiva."
     )
+    foco = st.radio("A investigar", ["(a) Pontos", "(b) Segmentos", "(c) Área"], key="es_foco", horizontal=True)
     c1, c2 = st.columns([1, 1.4])
     with c1:
         k = st.slider("k", 0.25, 3.0, 1.0, 0.25, key="es_k1")
         l = st.slider("l", 0.25, 3.0, 1.0, 0.25, key="es_l1")
         M = np.array([[k, 0.0], [0.0, l]])
         st.latex(rf"M = {latex_mat(M)}")
-        st.markdown("**Ajudas no gráfico**")
-        pontos = st.checkbox("Deslocamento de cada ponto (A→A′, B→B′, C→C′)", value=True, key="es_v_pontos")
-        seg_h = st.checkbox("Segmento horizontal (a base AB) e a sua imagem", value=False, key="es_v_h")
-        seg_v = st.checkbox("Segmento vertical (a altura CD) e a sua imagem", value=False, key="es_v_v")
-        quadrado = st.checkbox("Quadrado unitário e a sua imagem", value=False, key="es_v_q")
         X1 = M @ X
-        linhas = {"Ponto": [], "Original": [], "Imagem": []}
-        for j in range(3):
-            linhas["Ponto"].append(f"{chr(65 + j)} → {chr(65 + j)}′")
-            linhas["Original"].append(f"({_f(X[0, j])}, {_f(X[1, j])})")
-            linhas["Imagem"].append(f"({_f(X1[0, j])}, {_f(X1[1, j])})")
-        st.markdown(tabela_md(pd.DataFrame(linhas)))
-        if seg_h:
+        if foco.startswith("(a)"):
+            linhas = {"Ponto": [], "Original": [], "Imagem": []}
+            for j in range(3):
+                linhas["Ponto"].append(f"{chr(65 + j)} → {chr(65 + j)}′")
+                linhas["Original"].append(f"({_f(X[0, j])}, {_f(X[1, j])})")
+                linhas["Imagem"].append(f"({_f(X1[0, j])}, {_f(X1[1, j])})")
+            st.markdown(tabela_md(pd.DataFrame(linhas)))
+        elif foco.startswith("(b)"):
+            D = np.array([X[0, 2], X[1, 0]])
             st.metric("Comprimento da base AB (original → imagem)",
                       f"{np.linalg.norm(X[:, 1] - X[:, 0]):.2f} → {np.linalg.norm(X1[:, 1] - X1[:, 0]):.2f}")
-        if seg_v:
-            D = np.array([X[0, 2], X[1, 0]])
             st.metric("Comprimento da altura CD (original → imagem)",
                       f"{np.linalg.norm(X[:, 2] - D):.2f} → {np.linalg.norm(X1[:, 2] - M @ D):.2f}")
-        st.metric("Área do triângulo (original → imagem)", f"{area(X):.2f} → {area(X1):.2f}")
+        else:
+            st.metric("Área do triângulo (original → imagem)", f"{area(X):.2f} → {area(X1):.2f}")
     with c2:
-        mostrar(desenhar_escalonamento(k, l, pontos, seg_h, seg_v, quadrado))
+        mostrar(desenhar_escalonamento(k, l, pontos=foco.startswith("(a)"),
+                                       seg_h=foco.startswith("(b)"), seg_v=foco.startswith("(b)"),
+                                       quadrado=foco.startswith("(c)")))
     st.markdown("**Conjetura (a) · Pontos.** Compara as coordenadas de cada ponto com as da sua imagem. "
                 "Que fazes a $(x,y)$ para obter a imagem? Escreve a regra.")
     st.text_area("Pontos", key="es_t1a", height=70, label_visibility="collapsed")
@@ -1064,6 +1067,7 @@ def desenhar_alvo(X1, alvo):
 def es_inverso(modo_prof):
     st.subheader("Parte 2 · Descobrir $M$")
     nota_objetivo(
+        modo_prof,
         "$M$ leva $(x,y)$ a $(kx,\\,ly)$, isto é, $M=\\begin{bmatrix}k&0\\\\0&l\\end{bmatrix}$; logo $k=x'/x$ e $l=y'/y$ em qualquer vértice.",
         "Usar a conjetura da Parte 1 como **ferramenta**: a partir das coordenadas de $A$ e do ponto correspondente do alvo, "
         "determinar as entradas de $M$ (incluindo as que são nulas), e verificar com os outros vértices.",
@@ -1071,7 +1075,7 @@ def es_inverso(modo_prof):
     )
     alvos = [
         ("Alvo 1", np.diag([2.0, 1.0]) @ X, "$M=\\begin{bmatrix}2&0\\\\0&1\\end{bmatrix}$"),
-        ("Alvo 2", np.diag([0.5, 2.0]) @ X, "$M=\\begin{bmatrix}0{,}5&0\\\\0&2\\end{bmatrix}$"),
+        ("Alvo 2", np.diag([2.0, 0.5]) @ X, "$M=\\begin{bmatrix}2&0\\\\0&0{,}5\\end{bmatrix}$"),
     ]
     esc = st.selectbox("Desafio", [a[0] for a in alvos], key="es_d3")
     idx = [a[0] for a in alvos].index(esc)
@@ -1084,7 +1088,13 @@ def es_inverso(modo_prof):
     )
     c1, c2 = st.columns([1, 1.4])
     with c1:
-        M = entrada_matriz(f"es_m3_{idx}")
+        st.markdown("**Entradas de $M$** (dispostas como na matriz)")
+        ca, cb = st.columns(2)
+        m11 = ca.number_input("linha 1, coluna 1", value=1.0, step=0.25, key=f"es_m3_{idx}_11", label_visibility="collapsed")
+        m12 = cb.number_input("linha 1, coluna 2", value=0.0, step=0.25, key=f"es_m3_{idx}_12", label_visibility="collapsed")
+        m21 = ca.number_input("linha 2, coluna 1", value=0.0, step=0.25, key=f"es_m3_{idx}_21", label_visibility="collapsed")
+        m22 = cb.number_input("linha 2, coluna 2", value=1.0, step=0.25, key=f"es_m3_{idx}_22", label_visibility="collapsed")
+        M = np.array([[m11, m12], [m21, m22]])
         st.latex(rf"M = {latex_mat(M)}")
         X1 = M @ X
         if np.allclose(X1, alvo):
@@ -1119,6 +1129,7 @@ def _passo(chave, pergunta, opcoes, certa, dica):
 def es_justificar(modo_prof):
     st.subheader("Parte 3 · Justificar")
     nota_objetivo(
+        modo_prof,
         "Produto de uma matriz por uma matriz coluna, linha por coluna; as coordenadas de um segmento horizontal ou vertical; "
         "comprimento de um segmento; área de um triângulo, $\\tfrac12\\,b\\,h$.",
         "Passar de uma conjetura **testada em exemplos** para uma **justificação dedutiva**, válida para todos os pontos e todos os "
@@ -1132,12 +1143,9 @@ def es_justificar(modo_prof):
 
     st.markdown("#### (a) A imagem de um ponto")
     st.markdown("**Conjetura:** $M\\begin{bmatrix}x\\\\y\\end{bmatrix}=\\begin{bmatrix}kx\\\\ly\\end{bmatrix}$, com $M=\\begin{bmatrix}k&0\\\\0&l\\end{bmatrix}$.")
-    _passo("es_j_a1", "A 1.ª coordenada da imagem é a 1.ª linha de $M$ vezes a coluna: $k\\cdot x + 0\\cdot y =$",
-           ["$k+x$", "$kx$", "$kx+ly$", "$x$"], "$kx$",
-           "calcula $k\\cdot x$ e $0\\cdot y$ e soma.")
-    _passo("es_j_a2", "A 2.ª coordenada, com a 2.ª linha $(0,\\ l)$: $0\\cdot x + l\\cdot y =$",
-           ["$l\\,y$", "$l+y$", "$ky$", "$y$"], "$l\\,y$",
-           "a 2.ª linha de $M$ é $(0,\\ l)$.")
+    _passo("es_j_a1", "Calculando $\\begin{bmatrix}k&0\\\\0&l\\end{bmatrix}\\begin{bmatrix}x\\\\y\\end{bmatrix}$, linha por coluna, obtém-se",
+           ["$(k+x,\\ l+y)$", "$(kx,\\ ly)$", "$(kx,\\ y)$", "$(x,\\ ly)$"], "$(kx,\\ ly)$",
+           "a 1.ª linha dá $k\\cdot x+0\\cdot y$ e a 2.ª linha dá $0\\cdot x+l\\cdot y$.")
     st.text_area("Escreve a justificação (a)", key="es_j_ta", height=70)
 
     st.markdown("#### (b) A imagem de um segmento horizontal e de um vertical")
@@ -1146,13 +1154,10 @@ def es_justificar(modo_prof):
         "um vertical continua vertical e o comprimento multiplica por $|l|$."
     )
     st.markdown("Considera o segmento horizontal de extremos $P(x_1,\\,c)$ e $Q(x_2,\\,c)$.")
-    _passo("es_j_b1", "Por (a), a imagem de $P$ é $P'=(kx_1,\\ ?)$. A ordenada é",
-           ["$c$", "$kc$", "$lc$", "$x_1$"], "$lc$",
-           "usa (a): a ordenada fica multiplicada por $l$.")
-    _passo("es_j_b2", "$P'$ e $Q'$ têm a mesma ordenada $lc$. Logo $P'Q'$ é um segmento",
+    _passo("es_j_b1", "Por (a), $P'=(kx_1,\\ lc)$ e $Q'=(kx_2,\\ lc)$. Como têm a mesma ordenada, $P'Q'$ é um segmento",
            ["horizontal", "vertical", "oblíquo"], "horizontal",
            "pontos com a mesma ordenada estão numa reta de equação $y=\\text{constante}$.")
-    _passo("es_j_b3", "O comprimento de $P'Q'$ é $|kx_2-kx_1| = $",
+    _passo("es_j_b2", "O comprimento de $P'Q'$ é $|kx_2-kx_1| = $",
            ["$|k|\\,|x_2-x_1|$", "$|l|\\,|x_2-x_1|$", "$|k+l|\\,|x_2-x_1|$", "$|x_2-x_1|$"], "$|k|\\,|x_2-x_1|$",
            "põe $k$ em evidência.")
     st.markdown("Faz o mesmo para um segmento **vertical** de extremos $(c,\\ y_1)$ e $(c,\\ y_2)$.")
@@ -1189,27 +1194,52 @@ def es_justificar(modo_prof):
         )
 
 
+RESPOSTAS_ES = [
+    ("Parte 1 · conjetura (a), pontos", "es_t1a"),
+    ("Parte 1 · conjetura (b), segmentos", "es_t1b"),
+    ("Parte 1 · conjetura (c), área", "es_t1c"),
+    ("Parte 2 · alvo 1, explicação", "es_t3_0"),
+    ("Parte 2 · alvo 2, explicação", "es_t3_1"),
+    ("Parte 3 · justificação (a)", "es_j_ta"),
+    ("Parte 3 · justificação (b)", "es_j_tb"),
+    ("Parte 3 · justificação (c)", "es_j_tc"),
+]
+
+
+@st.fragment
+def es_exportar():
+    st.divider()
+    st.subheader("Guardar as respostas")
+    st.markdown("As respostas perdem-se se a página for atualizada. Escreve o nome do grupo, prepara o ficheiro e descarrega-o.")
+    nome = st.text_input("Nome do grupo", key="es_nome")
+    if st.button("Preparar ficheiro com as minhas respostas", key="es_prep"):
+        linhas = [f"# Escalonamento — {nome or 'sem nome'}", ""]
+        for titulo, chave in RESPOSTAS_ES:
+            resp = st.session_state.get(chave, "")
+            linhas += [f"## {titulo}", resp if resp else "(sem resposta)", ""]
+        st.download_button("Descarregar (.md)", "\n".join(linhas), file_name="escalonamento_respostas.md", key="es_dl")
+
+
 def modulo_escalonamento_draft(modo_prof):
     st.header("Escalonamento (rascunho)")
-    st.markdown(
-        "Tarefa curta sobre variações de tamanho. Em cada parte, a caixa 🎯 diz que conhecimento ou capacidade se pretende desenvolver, "
-        "e que evidência a mostra. Estas caixas são para discutir; antes de dar a tarefa aos alunos, retiram-se ou passam ao modo professor."
-    )
-    st.markdown("**Mapa das partes**")
-    st.markdown(tabela_md(pd.DataFrame({
-        "Parte": ["1 · Explorar e conjeturar", "2 · Descobrir M", "3 · Justificar"],
-        "Capacidade principal": [
-            "Conjeturar sobre o efeito em pontos, segmentos e áreas",
-            "Usar a conjetura sobre pontos para determinar as entradas de $M$",
-            "Justificar dedutivamente as conjeturas da Parte 1",
-        ],
-        "Tipo de pensamento": ["Observação e generalização", "Dedução", "Prova"],
-    })))
+    st.markdown("Tarefa curta sobre variações de tamanho: explorar e conjeturar, descobrir uma matriz e justificar.")
+    if modo_prof:
+        st.markdown("**Mapa das partes** *(modo professor)*")
+        st.markdown(tabela_md(pd.DataFrame({
+            "Parte": ["1 · Explorar e conjeturar", "2 · Descobrir M", "3 · Justificar"],
+            "Capacidade principal": [
+                "Conjeturar sobre o efeito em pontos, segmentos e áreas",
+                "Usar a conjetura sobre pontos para determinar as entradas de $M$",
+                "Justificar dedutivamente as conjeturas da Parte 1",
+            ],
+            "Tipo de pensamento": ["Observação e generalização", "Dedução", "Prova"],
+        })))
     es_explorar(modo_prof)
     st.divider()
     es_inverso(modo_prof)
     st.divider()
     es_justificar(modo_prof)
+    es_exportar()
 
 
 # --------------------------------------------------------------------------
