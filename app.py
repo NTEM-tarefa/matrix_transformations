@@ -472,10 +472,12 @@ def modulo_escalonamento_draft(modo_prof):
 
 
 # --------------------------------------------------------------------------
-# Barra lateral
+# Modo professor e título
 # --------------------------------------------------------------------------
-with st.sidebar:
-    senha = st.text_input("Modo professor (palavra-passe)", type="password", key="senha_prof")
+# Modo professor: canto superior esquerdo da página
+col_prof, _ = st.columns([1, 3])
+with col_prof:
+    senha = st.text_input("Modo professor", type="password", key="senha_prof", placeholder="palavra-passe")
     modo_prof = senha == "ntem"
     if senha and not modo_prof:
         st.caption("Palavra-passe incorreta.")
