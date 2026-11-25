@@ -1102,34 +1102,90 @@ def es_inverso(modo_prof):
     st.text_area("A tua explicação", key=f"es_t3_{idx}", height=80, label_visibility="collapsed")
 
 
+def _passo(chave, pergunta, opcoes, certa, dica):
+    """Passo de uma justificação guiada: escolha com resposta imediata. Devolve True se estiver certo."""
+    st.markdown(pergunta)
+    esc = st.radio("Escolhe", opcoes, index=None, key=chave, horizontal=True, label_visibility="collapsed")
+    if esc is None:
+        return False
+    if esc == certa:
+        st.success("✅ Certo.")
+        return True
+    st.error("❌ Não é esta. Pista: " + dica)
+    return False
+
+
 @st.fragment
-def es_conjeturar(modo_prof):
-    st.subheader("Parte 3 · Testar e justificar")
+def es_justificar(modo_prof):
+    st.subheader("Parte 3 · Justificar")
     nota_objetivo(
-        "Efeito de $\\mathrm{diag}(k,l)$ sobre a área (razão $kl$, o determinante) e sobre os ângulos (conservam-se só se $k=l$).",
-        "Testar em novos casos a conjetura da Parte 1 sobre as áreas, enunciar a regra sobre os ângulos e justificar ambas (a base fica multiplicada por $k$ e a altura por $l$).",
-        "O aluno confirma «razão das áreas $=k\\,l$», enuncia «a forma mantém-se se e só se $k=l$», e justifica a primeira com base e altura.",
+        "Produto de uma matriz por uma matriz coluna, linha por coluna; as coordenadas de um segmento horizontal ou vertical; "
+        "comprimento de um segmento; área de um triângulo, $\\tfrac12\\,b\\,h$.",
+        "Passar de uma conjetura **testada em exemplos** para uma **justificação dedutiva**, válida para todos os pontos e todos os "
+        "valores de $k$ e $l$, usando só definições e propriedades já conhecidas.",
+        "O aluno completa os passos corretamente e escreve, com as suas palavras, uma justificação para cada conjetura da Parte 1.",
     )
-    casos = [(2.0, 2.0), (2.0, 3.0), (0.5, 4.0), (3.0, 1.0), (1.5, 1.5)]
-    linhas = []
-    for k, l in casos:
-        X1 = np.diag([k, l]) @ X
-        linhas.append({
-            "k": _f(k), "l": _f(l),
-            "razão das áreas": f"{area(X1) / area(X):.3f}",
-            "ângulos iguais?": "sim" if np.allclose(angulos_internos(X), angulos_internos(X1)) else "não",
-        })
-    st.markdown(tabela_md(pd.DataFrame(linhas)))
     st.markdown(
-        "1. A tabela confirma a tua conjetura da Parte 1 sobre as **áreas**? Se necessário, corrige-a.\n"
-        "2. Em que casos os **ângulos** se mantêm?\n"
-        "3. Justifica a tua conjetura sobre as áreas. *(Sugestão: pensa na base e na altura do triângulo.)*"
+        "Na Parte 1 viste **exemplos**. Agora vais mostrar que as tuas conjeturas valem **sempre**. "
+        "Em cada uma, completa os passos e depois escreve a justificação completa."
     )
-    st.text_area("As tuas conjeturas e justificações", key="es_t4", height=140, label_visibility="collapsed")
+
+    st.markdown("#### (a) A imagem de um ponto")
+    st.markdown("**Conjetura:** $M\\begin{bmatrix}x\\\\y\\end{bmatrix}=\\begin{bmatrix}kx\\\\ly\\end{bmatrix}$, com $M=\\begin{bmatrix}k&0\\\\0&l\\end{bmatrix}$.")
+    _passo("es_j_a1", "A 1.ª coordenada da imagem é a 1.ª linha de $M$ vezes a coluna: $k\\cdot x + 0\\cdot y =$",
+           ["$k+x$", "$kx$", "$kx+ly$", "$x$"], "$kx$",
+           "calcula $k\\cdot x$ e $0\\cdot y$ e soma.")
+    _passo("es_j_a2", "A 2.ª coordenada, com a 2.ª linha $(0,\\ l)$: $0\\cdot x + l\\cdot y =$",
+           ["$l\\,y$", "$l+y$", "$ky$", "$y$"], "$l\\,y$",
+           "a 2.ª linha de $M$ é $(0,\\ l)$.")
+    st.text_area("Escreve a justificação (a)", key="es_j_ta", height=70)
+
+    st.markdown("#### (b) A imagem de um segmento horizontal e de um vertical")
+    st.markdown(
+        "**Conjetura:** um segmento horizontal continua horizontal e o seu comprimento multiplica por $|k|$; "
+        "um vertical continua vertical e o comprimento multiplica por $|l|$."
+    )
+    st.markdown("Considera o segmento horizontal de extremos $P(x_1,\\,c)$ e $Q(x_2,\\,c)$.")
+    _passo("es_j_b1", "Por (a), a imagem de $P$ é $P'=(kx_1,\\ ?)$. A ordenada é",
+           ["$c$", "$kc$", "$lc$", "$x_1$"], "$lc$",
+           "usa (a): a ordenada fica multiplicada por $l$.")
+    _passo("es_j_b2", "$P'$ e $Q'$ têm a mesma ordenada $lc$. Logo $P'Q'$ é um segmento",
+           ["horizontal", "vertical", "oblíquo"], "horizontal",
+           "pontos com a mesma ordenada estão numa reta de equação $y=\\text{constante}$.")
+    _passo("es_j_b3", "O comprimento de $P'Q'$ é $|kx_2-kx_1| = $",
+           ["$|k|\\,|x_2-x_1|$", "$|l|\\,|x_2-x_1|$", "$|k+l|\\,|x_2-x_1|$", "$|x_2-x_1|$"], "$|k|\\,|x_2-x_1|$",
+           "põe $k$ em evidência.")
+    st.markdown("Faz o mesmo para um segmento **vertical** de extremos $(c,\\ y_1)$ e $(c,\\ y_2)$.")
+    st.text_area("Escreve a justificação (b), incluindo o caso vertical", key="es_j_tb", height=90)
+
+    st.markdown("#### (c) A área")
+    st.markdown(
+        "**Conjetura:** a área da imagem é a área original multiplicada por $k\\,l$. "
+        "Faz a justificação para o triângulo $ABC$, com base $AB$ (horizontal) e altura $CD$ (vertical)."
+    )
+    _passo("es_j_c1", "A área original é $\\tfrac12\\,|AB|\\,|CD|$. Na imagem, $A'B'$ é horizontal e $C'D'$ é vertical. "
+           "$C'D'$ é a altura do triângulo $A'B'C'$ em relação à base $A'B'$?",
+           ["sim, porque são perpendiculares", "não, porque se deformam", "só se $k=l$"], "sim, porque são perpendiculares",
+           "um segmento horizontal e um vertical são sempre perpendiculares.")
+    _passo("es_j_c2", "Por (b), quais são os comprimentos de $A'B'$ e de $C'D'$?",
+           ["$k|AB|$ e $l|CD|$", "$l|AB|$ e $k|CD|$", "$k|AB|$ e $k|CD|$"], "$k|AB|$ e $l|CD|$",
+           "a base é horizontal (fator $k$) e a altura é vertical (fator $l$).")
+    _passo("es_j_c3", "A área da imagem é $\\tfrac12\\,|A'B'|\\,|C'D'| = \\tfrac12\\,(k|AB|)(l|CD|) =$",
+           ["$(k+l)\\times$ área original", "$k\\,l\\times$ área original", "$\\dfrac{k}{l}\\times$ área original"],
+           "$k\\,l\\times$ área original",
+           "multiplica os fatores $k$ e $l$ e deixa $\\tfrac12|AB||CD|$.")
+    st.text_area("Escreve a justificação (c)", key="es_j_tc", height=90)
     if modo_prof:
         st.info(
-            "**Resposta esperada:** razão das áreas $=k\\,l=\\det M$; os ângulos mantêm-se se e só se $k=l$ (a figura fica semelhante à original). "
-            "Justificação: com um lado horizontal por base, a base fica multiplicada por $k$ e a altura por $l$, logo a área, $\\tfrac12\\,b\\,h$, por $k\\,l$."
+            "**Justificações modelo.**\n\n"
+            "(a) $\\begin{bmatrix}k&0\\\\0&l\\end{bmatrix}\\begin{bmatrix}x\\\\y\\end{bmatrix}"
+            "=\\begin{bmatrix}k\\,x+0\\,y\\\\0\\,x+l\\,y\\end{bmatrix}=\\begin{bmatrix}kx\\\\ly\\end{bmatrix}$.\n\n"
+            "(b) Se $P(x_1,c)$ e $Q(x_2,c)$, então $P'(kx_1,\\,lc)$ e $Q'(kx_2,\\,lc)$ têm a mesma ordenada; $P'Q'$ é horizontal e "
+            "$|P'Q'|=|kx_2-kx_1|=|k|\\,|x_2-x_1|$. Para $(c,y_1)$ e $(c,y_2)$: as imagens $(kc,\\,ly_1)$ e $(kc,\\,ly_2)$ têm a mesma abcissa, "
+            "logo o segmento é vertical, de comprimento $|l|\\,|y_2-y_1|$.\n\n"
+            "(c) A base $AB$ é horizontal e a altura $CD$ é vertical, logo $A'B'\\perp C'D'$ e $C'D'$ é a altura de $A'B'C'$. "
+            "Então $\\text{área}'=\\tfrac12\\,|A'B'|\\,|C'D'|=\\tfrac12\\,(|k||AB|)(|l||CD|)=|k\\,l|\\cdot\\tfrac12|AB||CD|$. "
+            "(Para figuras quaisquer, decompõe-se em triângulos desta forma, ou usa-se o quadrado unitário, que passa a um retângulo $k\\times l$.)"
         )
 
 
@@ -1141,19 +1197,19 @@ def modulo_escalonamento_draft(modo_prof):
     )
     st.markdown("**Mapa das partes**")
     st.markdown(tabela_md(pd.DataFrame({
-        "Parte": ["1 · Explorar e conjeturar", "2 · Descobrir M", "3 · Testar e justificar"],
+        "Parte": ["1 · Explorar e conjeturar", "2 · Descobrir M", "3 · Justificar"],
         "Capacidade principal": [
             "Conjeturar sobre o efeito em pontos, segmentos e áreas",
             "Usar a conjetura sobre pontos para determinar as entradas de $M$",
-            "Testar a conjetura sobre as áreas, enunciar a dos ângulos e justificar",
+            "Justificar dedutivamente as conjeturas da Parte 1",
         ],
-        "Tipo de pensamento": ["Observação e generalização", "Dedução", "Verificação e prova"],
+        "Tipo de pensamento": ["Observação e generalização", "Dedução", "Prova"],
     })))
     es_explorar(modo_prof)
     st.divider()
     es_inverso(modo_prof)
     st.divider()
-    es_conjeturar(modo_prof)
+    es_justificar(modo_prof)
 
 
 # --------------------------------------------------------------------------
