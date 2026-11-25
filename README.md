@@ -10,8 +10,13 @@ streamlit run app.py
 1. Colocar `app.py` e `requirements.txt` num repositório do GitHub.
 2. Em https://share.streamlit.io, criar uma app a partir do repositório (ficheiro principal: `app.py`).
 
-O **Modo professor** (barra lateral) mostra as soluções dos desafios.
+O **Modo professor** (canto superior esquerdo da página, palavra-passe `ntem`) mostra as soluções e as notas para o professor.
 
 ## Estrutura
-- **Laboratório:** explica o setup da experiência (a matriz `X` dos vértices e as suas colunas).
-- **A · Variações de tamanho (scaling), B · Cisalhamentos (shearing), C · Rotações:** módulos autónomos, que podem ser feitos por qualquer ordem. Cada um tem exploração, desafios, conjeturas, justificação e um caderno de bordo próprio (exportável em Markdown).
+- **A · variação de tamanho**: tarefa curta em três partes:
+  1. *Explora e responde* (resposta múltipla): o que a transformação faz a pontos, segmentos e áreas.
+  2. *Descobrir M*: determinar as entradas de uma matriz para levar o triângulo ao alvo.
+  3. *Justificar*: textos com lacunas (menus) que justificam as regras da Parte 1.
+
+  No fim de cada separador, as respostas podem ser descarregadas num ficheiro Markdown.
+- `.streamlit/config.toml` (opcional): tema de cores da app.
