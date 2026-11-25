@@ -812,13 +812,14 @@ def modulo_rotacoes(modo_prof):
 XV = np.array([2.0, 1.0])  # o vetor x, fixo
 ALVO_V = matriz_rotacao(np.pi / 2) @ XV  # alvo: x rodado de π/2, isto é (-1, 2)
 
-# opções de cada entrada de M: nome -> (valor em função do ângulo θ, LaTeX)
+# opções de cada entrada de M: nome -> (função do valor v, LaTeX do resultado)
+# "=" : a entrada é o próprio valor v;  "=sin", "=cos", ...: a entrada é sin(v·π), cos(v·π), ... (ângulo em radianos, v·π)
 OPCOES_M = {
-    "nada": (lambda t: 0.0, "0"),
-    "-cos": (lambda t: -np.cos(t), r"-\cos\theta"),
-    "cos": (lambda t: np.cos(t), r"\cos\theta"),
-    "-sin": (lambda t: -np.sin(t), r"-\sin\theta"),
-    "sin": (lambda t: np.sin(t), r"\sin\theta"),
+    "=": (lambda v: v, lambda v: _f(v)),
+    "=-sin": (lambda v: -np.sin(v * np.pi), lambda v: rf"-\sin({_f(v)}\pi)"),
+    "=sin": (lambda v: np.sin(v * np.pi), lambda v: rf"\sin({_f(v)}\pi)"),
+    "=-cos": (lambda v: -np.cos(v * np.pi), lambda v: rf"-\cos({_f(v)}\pi)"),
+    "=cos": (lambda v: np.cos(v * np.pi), lambda v: rf"\cos({_f(v)}\pi)"),
 }
 
 
@@ -855,24 +856,27 @@ def dv_produto():
     st.subheader("Roda o vetor $\\mathbf{x}$ de $\\pi/2$")
     st.markdown(
         "O vetor $\\mathbf{x} = (2,1)$ é fixo. O **alvo** (a tracejado) é $\\mathbf{x}$ rodado de $\\pi/2$ radianos. "
-        "Escolhe, para cada entrada de $M$, uma das opções, onde $\\theta = c\\,\\pi$ é o ângulo escolhido por ti."
+        "Cada entrada de $M$ tem um menu e, à direita, um campo com um valor $v$. "
+        "Com **=** a entrada é o próprio $v$; com **=sin**, **=cos** (ou com sinal −) a entrada é "
+        "$\\sin(v\\,\\pi)$, $\\cos(v\\,\\pi)$ (ou o simétrico): o ângulo é $v\\,\\pi$ radianos."
     )
-    c_ang = st.number_input("c  (ângulo θ = c·π radianos)", value=0.0, step=0.05, format="%.3f", key="dv_c")
-    theta = c_ang * np.pi
-    st.caption(f"θ = {c_ang:g}·π ≈ {theta:.4f} rad")
-    esq, dir_ = st.columns([1.4, 1])
+    esq, dir_ = st.columns([2.3, 1])
     with esq:
-        c = st.columns([0.35, 1.2, 1.2, 0.35, 0.3, 1])
-        _parenteses(c[0], "("); _parenteses(c[3], ")")
+        c = st.columns([0.3, 1.1, 0.8, 1.1, 0.8, 0.3, 0.15, 0.8])
+        _parenteses(c[0], "("); _parenteses(c[5], ")")
         nomes = list(OPCOES_M)
-        e11 = c[1].selectbox("m11", nomes, key="dv_m11", label_visibility="collapsed")
-        e12 = c[2].selectbox("m12", nomes, key="dv_m12", label_visibility="collapsed")
-        e21 = c[1].selectbox("m21", nomes, key="dv_m21", label_visibility="collapsed")
-        e22 = c[2].selectbox("m22", nomes, key="dv_m22", label_visibility="collapsed")
-        c[5].latex(latex_pmat(XV.reshape(-1, 1)))
-        esc = [[e11, e12], [e21, e22]]
-        M = np.array([[OPCOES_M[e][0](theta) for e in linha] for linha in esc])
-        M_simb = r"\begin{pmatrix} " + r" \\ ".join(" & ".join(OPCOES_M[e][1] for e in linha) for linha in esc) + r" \end{pmatrix}"
+        padrao = {(0, 0): 1.0, (0, 1): 0.0, (1, 0): 0.0, (1, 1): 1.0}
+        esc, val = [[None, None], [None, None]], [[0.0, 0.0], [0.0, 0.0]]
+        for i in range(2):
+            for j in range(2):
+                esc[i][j] = c[1 + 2 * j].selectbox(f"m{i + 1}{j + 1}", nomes, key=f"dv_f{i}{j}",
+                                                   label_visibility="collapsed")
+                val[i][j] = c[2 + 2 * j].number_input(f"v{i + 1}{j + 1}", value=padrao[(i, j)], step=0.25,
+                                                      key=f"dv_v{i}{j}", label_visibility="collapsed")
+        c[7].latex(latex_pmat(XV.reshape(-1, 1)))
+        M = np.array([[OPCOES_M[esc[i][j]][0](val[i][j]) for j in range(2)] for i in range(2)])
+        M_simb = (r"\begin{pmatrix} " + r" \\ ".join(
+            " & ".join(OPCOES_M[esc[i][j]][1](val[i][j]) for j in range(2)) for i in range(2)) + r" \end{pmatrix}")
         x1 = M @ XV
         st.markdown("$M$ (à esquerda) multiplica $\\mathbf{x}$ (à direita).")
         st.latex(rf"M = {M_simb} = {latex_pmat(M)}")
