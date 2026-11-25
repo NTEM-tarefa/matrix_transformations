@@ -984,14 +984,14 @@ def es_explorar(modo_prof):
         modo_prof,
         "Uma variação de tamanho, $\\mathrm{diag}(k,l)$, leva $(x,y)$ a $(kx,\\,ly)$; um segmento horizontal continua horizontal, com o comprimento multiplicado por $k$, "
         "e um segmento vertical continua vertical, com o comprimento multiplicado por $l$; a área fica multiplicada por $k\\,l$.",
-        "Formular **conjeturas** a partir da observação (gráfico e valores numéricos) sobre o que a transformação faz a "
-        "(a) cada ponto, (b) cada segmento horizontal e vertical e (c) à área, e exprimi-las em linguagem matemática.",
-        "O aluno escreve uma regra para as coordenadas, diz que os segmentos mantêm a direção, indica como mudam os comprimentos, e relaciona as áreas com $k$ e $l$.",
+        "Identificar, por observação (gráfico e valores numéricos) e testando com vários valores de $k$ e $l$, o que a transformação faz a "
+        "(a) cada ponto, (b) cada segmento horizontal e vertical e (c) à área. As opções erradas refletem ideias comuns (somar em vez de multiplicar, trocar $k$ e $l$).",
+        "O aluno escolhe as três opções corretas depois de testar com diferentes valores de $k$ e $l$.",
     )
     st.markdown(
         "Move $k$ e $l$, experimentando valores **iguais** e **diferentes**, maiores e menores do que 1. "
         "Escolhe em baixo **o que estás a investigar**: o gráfico e os dados mudam em conformidade. "
-        "Regista cada conjetura na caixa respetiva."
+        "Responde às três perguntas."
     )
     foco = st.radio("A investigar", ["(a) Pontos", "(b) Segmentos", "(c) Área"], key="es_foco", horizontal=True)
     c1, c2 = st.columns([1, 1.4])
@@ -1020,18 +1020,24 @@ def es_explorar(modo_prof):
         mostrar(desenhar_escalonamento(k, l, pontos=foco.startswith("(a)"),
                                        seg_h=foco.startswith("(b)"), seg_v=foco.startswith("(b)"),
                                        quadrado=foco.startswith("(c)")))
-    st.markdown("**Conjetura (a) · Pontos.** Compara as coordenadas de cada ponto com as da sua imagem. "
-                "Que fazes a $(x,y)$ para obter a imagem? Escreve a regra.")
-    st.text_area("Pontos", key="es_t1a", height=70, label_visibility="collapsed")
-    st.markdown("**Conjetura (b) · Segmentos.** Que acontece a um segmento horizontal (a base $AB$)? E a um segmento vertical "
-                "(a altura $CD$)? Mantêm a direção? Como mudam os seus comprimentos?")
-    st.text_area("Segmentos", key="es_t1b", height=70, label_visibility="collapsed")
-    st.markdown("**Conjetura (c) · Área.** Como se relaciona a área da imagem com a da figura original? "
-                "E com $k$ e $l$? *(O quadrado unitário pode ajudar.)*")
-    st.text_area("Área", key="es_t1c", height=70, label_visibility="collapsed")
+    dica = "testa esta opção no gráfico, com outros valores de $k$ e $l$."
+    st.markdown("**(a) Pontos.** Compara as coordenadas de cada ponto com as da sua imagem. Que se faz a $(x,y)$ para obter a imagem?")
+    _passo("es_m1a", "Escolhe a opção correta:",
+           ["$(x+k,\\ y+l)$", "$(kx,\\ ly)$", "$(kx,\\ y)$", "$(lx,\\ ky)$"], "$(kx,\\ ly)$", dica, horizontal=False)
+    st.markdown("**(b) Segmentos.** Que acontece a um segmento horizontal (a base $AB$) e a um segmento vertical (a altura $CD$)?")
+    _passo("es_m1b", "Escolhe a opção correta:",
+           ["Continuam horizontal e vertical; o horizontal fica multiplicado por $k$ e o vertical por $l$.",
+            "Continuam horizontal e vertical; o horizontal fica multiplicado por $l$ e o vertical por $k$.",
+            "Continuam horizontal e vertical, mas os comprimentos não mudam.",
+            "Ficam oblíquos."],
+           "Continuam horizontal e vertical; o horizontal fica multiplicado por $k$ e o vertical por $l$.", dica, horizontal=False)
+    st.markdown("**(c) Área.** Como se relaciona a área da imagem com a da figura original? *(O quadrado unitário pode ajudar.)*")
+    _passo("es_m1c", "Escolhe a opção correta:",
+           ["Fica multiplicada por $k+l$.", "Fica multiplicada por $k$.", "Fica multiplicada por $k\\,l$.", "Mantém-se."],
+           "Fica multiplicada por $k\\,l$.", dica, horizontal=False)
     if modo_prof:
         st.info(
-            "**Conjeturas esperadas:** (a) $(x,y)\\mapsto(k\\,x,\\ l\\,y)$: a abcissa multiplica por $k$ e a ordenada por $l$. "
+            "**Respostas esperadas:** (a) $(x,y)\\mapsto(k\\,x,\\ l\\,y)$: a abcissa multiplica por $k$ e a ordenada por $l$. "
             "(b) Um segmento horizontal continua horizontal e o seu comprimento multiplica por $k$ (em módulo); um segmento vertical continua vertical e o seu comprimento multiplica por $l$. "
             "(c) A área fica multiplicada por $k\\,l$ (o quadrado unitário passa a um retângulo $k\\times l$)."
         )
@@ -1083,7 +1089,7 @@ def es_inverso(modo_prof):
     st.markdown(
         "O triângulo alvo (a tracejado) é a imagem de $ABC$ por uma matriz $M$ que tens de descobrir. "
         "O gráfico mostra as coordenadas de $A$, $B$, $C$ e dos pontos correspondentes do alvo, $A^*$, $B^*$, $C^*$. "
-        "**Usa a regra que conjeturaste na Parte 1** para encontrar as quatro entradas de $M$. "
+        "**Usa a regra que identificaste na Parte 1** para encontrar as quatro entradas de $M$. "
         "Quando as preencheres, a imagem aparece a vermelho."
     )
     c1, c2 = st.columns([1, 1.4])
@@ -1112,10 +1118,10 @@ def es_inverso(modo_prof):
     st.text_area("A tua explicação", key=f"es_t3_{idx}", height=80, label_visibility="collapsed")
 
 
-def _passo(chave, pergunta, opcoes, certa, dica):
+def _passo(chave, pergunta, opcoes, certa, dica, horizontal=True):
     """Passo de uma justificação guiada: escolha com resposta imediata. Devolve True se estiver certo."""
     st.markdown(pergunta)
-    esc = st.radio("Escolhe", opcoes, index=None, key=chave, horizontal=True, label_visibility="collapsed")
+    esc = st.radio("Escolhe", opcoes, index=None, key=chave, horizontal=horizontal, label_visibility="collapsed")
     if esc is None:
         return False
     if esc == certa:
@@ -1125,61 +1131,108 @@ def _passo(chave, pergunta, opcoes, certa, dica):
     return False
 
 
+SECOES_J = [
+    {
+        "titulo": "(a) A imagem de um ponto",
+        "enunciado": "Queremos provar que $M\\begin{bmatrix}x\\\\y\\end{bmatrix}=\\begin{bmatrix}kx\\\\ly\\end{bmatrix}$, com $M=\\begin{bmatrix}k&0\\\\0&l\\end{bmatrix}$.",
+        "linhas": [
+            ("es_l_a1",
+             ["Calculando o produto linha por coluna, a imagem de $(x,y)$ tem 1.ª coordenada",
+              (["k·x", "k + x", "x", "k·x + l·y"], "k·x"),
+              "e 2.ª coordenada",
+              (["l·y", "l + y", "y", "k·x + l·y"], "l·y")],
+             "a 1.ª linha de $M$ é $(k,\\ 0)$ e a 2.ª é $(0,\\ l)$."),
+        ],
+    },
+    {
+        "titulo": "(b) A imagem de um segmento horizontal e de um vertical",
+        "enunciado": "Seja $PQ$ o segmento horizontal de extremos $P(x_1,\\,c)$ e $Q(x_2,\\,c)$. Por (a), $P'=(kx_1,\\ lc)$ e $Q'=(kx_2,\\ lc)$.",
+        "linhas": [
+            ("es_l_b1",
+             ["$P'$ e $Q'$ têm a mesma ordenada; logo $P'Q'$ é um segmento",
+              (["horizontal", "vertical", "oblíquo"], "horizontal")],
+             "pontos com a mesma ordenada estão numa reta $y=\\text{constante}$."),
+            ("es_l_b2",
+             ["O comprimento de $P'Q'$ é $|kx_2-kx_1|=$",
+              (["|k|·|x₂ − x₁|", "|l|·|x₂ − x₁|", "|k + l|·|x₂ − x₁|", "|x₂ − x₁|"], "|k|·|x₂ − x₁|")],
+             "põe $k$ em evidência."),
+            ("es_l_b3",
+             ["Analogamente, um segmento vertical continua",
+              (["horizontal", "vertical", "oblíquo"], "vertical"),
+              "e o seu comprimento fica multiplicado por",
+              (["|k|", "|l|", "|k| + |l|", "1"], "|l|")],
+             "agora é a ordenada que varia, e a ordenada fica multiplicada por $l$."),
+        ],
+    },
+    {
+        "titulo": "(c) A área",
+        "enunciado": "Seja $ABC$ o triângulo de base $AB$ (horizontal) e altura $CD$ (vertical); a sua área é $\\tfrac12\\,|AB|\\,|CD|$.",
+        "linhas": [
+            ("es_l_c1",
+             ["Na imagem, $A'B'$ é horizontal e $C'D'$ é vertical; são sempre",
+              (["perpendiculares", "paralelos", "oblíquos"], "perpendiculares"),
+              ", logo $C'D'$ é a altura de $A'B'C'$."],
+             "um segmento horizontal e um vertical formam um ângulo reto."),
+            ("es_l_c2",
+             ["Por (b), $|A'B'|=$",
+              (["k·|AB|", "l·|AB|", "k·l·|AB|"], "k·|AB|"),
+              "e $|C'D'|=$",
+              (["k·|CD|", "l·|CD|", "k·l·|CD|"], "l·|CD|")],
+             "a base é horizontal (fator $k$) e a altura é vertical (fator $l$)."),
+            ("es_l_c3",
+             ["Então a área da imagem, $\\tfrac12\\,|A'B'|\\,|C'D'|$, é",
+              (["k + l", "k·l", "k/l"], "k·l"),
+              "vezes a área original."],
+             "multiplica os fatores e deixa $\\tfrac12\\,|AB|\\,|CD|$."),
+        ],
+    },
+]
+
+
+def _linha_lacunas(chave, partes, dica):
+    """Uma frase com lacunas: texto e menus lado a lado; marca ✅ ou ❌ no fim. Devolve True se todas estiverem certas."""
+    pesos = [max(0.5, len(p.replace("$", "").replace("\\", "")) / 13) if isinstance(p, str) else 1.5 for p in partes]
+    cols = st.columns(pesos + [0.35], vertical_alignment="center")
+    escolhas = []
+    for i, (col, p) in enumerate(zip(cols, partes)):
+        if isinstance(p, str):
+            col.markdown(p)
+        else:
+            opcoes, certa = p
+            esc = col.selectbox(f"lacuna {i}", opcoes, index=None, placeholder="…", key=f"{chave}_{i}",
+                                label_visibility="collapsed")
+            escolhas.append((esc, certa))
+    feitas = [e for e, _ in escolhas if e is not None]
+    erradas = [e for e, c in escolhas if e is not None and e != c]
+    if erradas:
+        cols[-1].markdown("❌")
+        st.caption("Pista: " + dica)
+    elif len(feitas) == len(escolhas):
+        cols[-1].markdown("✅")
+        return True
+    return False
+
+
 @st.fragment
 def es_justificar(modo_prof):
     st.subheader("Parte 3 · Justificar")
     nota_objetivo(
         modo_prof,
-        "Produto de uma matriz por uma matriz coluna, linha por coluna; as coordenadas de um segmento horizontal ou vertical; "
+        "Produto de uma matriz por uma matriz coluna, linha por linha; as coordenadas de um segmento horizontal ou vertical; "
         "comprimento de um segmento; área de um triângulo, $\\tfrac12\\,b\\,h$.",
-        "Passar de uma conjetura **testada em exemplos** para uma **justificação dedutiva**, válida para todos os pontos e todos os "
-        "valores de $k$ e $l$, usando só definições e propriedades já conhecidas.",
-        "O aluno completa os passos corretamente e escreve, com as suas palavras, uma justificação para cada conjetura da Parte 1.",
+        "Passar de uma regra **testada em exemplos** para uma **justificação dedutiva**, válida para todos os pontos e todos os "
+        "valores de $k$ e $l$, completando cada passo com a propriedade que o justifica.",
+        "O aluno completa corretamente as lacunas dos três textos.",
     )
     st.markdown(
-        "Na Parte 1 viste **exemplos**. Agora vais mostrar que as tuas conjeturas valem **sempre**. "
-        "Em cada uma, completa os passos e depois escreve a justificação completa."
+        "Na Parte 1 viste **exemplos**. Agora vais mostrar que as regras valem **sempre**. "
+        "Completa cada texto escolhendo, em cada lacuna, a opção certa."
     )
-
-    st.markdown("#### (a) A imagem de um ponto")
-    st.markdown("**Conjetura:** $M\\begin{bmatrix}x\\\\y\\end{bmatrix}=\\begin{bmatrix}kx\\\\ly\\end{bmatrix}$, com $M=\\begin{bmatrix}k&0\\\\0&l\\end{bmatrix}$.")
-    _passo("es_j_a1", "Calculando $\\begin{bmatrix}k&0\\\\0&l\\end{bmatrix}\\begin{bmatrix}x\\\\y\\end{bmatrix}$, linha por coluna, obtém-se",
-           ["$(k+x,\\ l+y)$", "$(kx,\\ ly)$", "$(kx,\\ y)$", "$(x,\\ ly)$"], "$(kx,\\ ly)$",
-           "a 1.ª linha dá $k\\cdot x+0\\cdot y$ e a 2.ª linha dá $0\\cdot x+l\\cdot y$.")
-    st.text_area("Escreve a justificação (a)", key="es_j_ta", height=70)
-
-    st.markdown("#### (b) A imagem de um segmento horizontal e de um vertical")
-    st.markdown(
-        "**Conjetura:** um segmento horizontal continua horizontal e o seu comprimento multiplica por $|k|$; "
-        "um vertical continua vertical e o comprimento multiplica por $|l|$."
-    )
-    st.markdown("Considera o segmento horizontal de extremos $P(x_1,\\,c)$ e $Q(x_2,\\,c)$.")
-    _passo("es_j_b1", "Por (a), $P'=(kx_1,\\ lc)$ e $Q'=(kx_2,\\ lc)$. Como têm a mesma ordenada, $P'Q'$ é um segmento",
-           ["horizontal", "vertical", "oblíquo"], "horizontal",
-           "pontos com a mesma ordenada estão numa reta de equação $y=\\text{constante}$.")
-    _passo("es_j_b2", "O comprimento de $P'Q'$ é $|kx_2-kx_1| = $",
-           ["$|k|\\,|x_2-x_1|$", "$|l|\\,|x_2-x_1|$", "$|k+l|\\,|x_2-x_1|$", "$|x_2-x_1|$"], "$|k|\\,|x_2-x_1|$",
-           "põe $k$ em evidência.")
-    st.markdown("Faz o mesmo para um segmento **vertical** de extremos $(c,\\ y_1)$ e $(c,\\ y_2)$.")
-    st.text_area("Escreve a justificação (b), incluindo o caso vertical", key="es_j_tb", height=90)
-
-    st.markdown("#### (c) A área")
-    st.markdown(
-        "**Conjetura:** a área da imagem é a área original multiplicada por $k\\,l$. "
-        "Faz a justificação para o triângulo $ABC$, com base $AB$ (horizontal) e altura $CD$ (vertical)."
-    )
-    _passo("es_j_c1", "A área original é $\\tfrac12\\,|AB|\\,|CD|$. Na imagem, $A'B'$ é horizontal e $C'D'$ é vertical. "
-           "$C'D'$ é a altura do triângulo $A'B'C'$ em relação à base $A'B'$?",
-           ["sim, porque são perpendiculares", "não, porque se deformam", "só se $k=l$"], "sim, porque são perpendiculares",
-           "um segmento horizontal e um vertical são sempre perpendiculares.")
-    _passo("es_j_c2", "Por (b), quais são os comprimentos de $A'B'$ e de $C'D'$?",
-           ["$k|AB|$ e $l|CD|$", "$l|AB|$ e $k|CD|$", "$k|AB|$ e $k|CD|$"], "$k|AB|$ e $l|CD|$",
-           "a base é horizontal (fator $k$) e a altura é vertical (fator $l$).")
-    _passo("es_j_c3", "A área da imagem é $\\tfrac12\\,|A'B'|\\,|C'D'| = \\tfrac12\\,(k|AB|)(l|CD|) =$",
-           ["$(k+l)\\times$ área original", "$k\\,l\\times$ área original", "$\\dfrac{k}{l}\\times$ área original"],
-           "$k\\,l\\times$ área original",
-           "multiplica os fatores $k$ e $l$ e deixa $\\tfrac12|AB||CD|$.")
-    st.text_area("Escreve a justificação (c)", key="es_j_tc", height=90)
+    for sec in SECOES_J:
+        st.markdown(f"#### {sec['titulo']}")
+        st.markdown(sec["enunciado"])
+        for chave, partes, dica in sec["linhas"]:
+            _linha_lacunas(chave, partes, dica)
     if modo_prof:
         st.info(
             "**Justificações modelo.**\n\n"
@@ -1195,14 +1248,11 @@ def es_justificar(modo_prof):
 
 
 RESPOSTAS_ES = [
-    ("Parte 1 · conjetura (a), pontos", "es_t1a"),
-    ("Parte 1 · conjetura (b), segmentos", "es_t1b"),
-    ("Parte 1 · conjetura (c), área", "es_t1c"),
+    ("Parte 1 · (a) pontos", "es_m1a"),
+    ("Parte 1 · (b) segmentos", "es_m1b"),
+    ("Parte 1 · (c) área", "es_m1c"),
     ("Parte 2 · alvo 1, explicação", "es_t3_0"),
     ("Parte 2 · alvo 2, explicação", "es_t3_1"),
-    ("Parte 3 · justificação (a)", "es_j_ta"),
-    ("Parte 3 · justificação (b)", "es_j_tb"),
-    ("Parte 3 · justificação (c)", "es_j_tc"),
 ]
 
 
@@ -1217,6 +1267,12 @@ def es_exportar():
         for titulo, chave in RESPOSTAS_ES:
             resp = st.session_state.get(chave, "")
             linhas += [f"## {titulo}", resp if resp else "(sem resposta)", ""]
+        for sec in SECOES_J:
+            linhas.append(f"## Parte 3 · {sec['titulo']}")
+            for chave, partes, _ in sec["linhas"]:
+                escolhidas = [st.session_state.get(f"{chave}_{i}") or "(vazio)" for i, p in enumerate(partes) if not isinstance(p, str)]
+                linhas.append("- " + "; ".join(escolhidas))
+            linhas.append("")
         st.download_button("Descarregar (.md)", "\n".join(linhas), file_name="escalonamento_respostas.md", key="es_dl")
 
 
