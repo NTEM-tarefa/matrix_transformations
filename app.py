@@ -171,6 +171,15 @@ def desenhar_variacao_tamanho(k, l, pontos=True, seg_h=False, seg_v=False, quadr
 
 
 @st.fragment
+def _pergunta_aberta(chave, enunciado, dica):
+    """Pergunta de resposta aberta, com uma dica escondida que se abre ao clicar."""
+    st.markdown(enunciado)
+    st.text_area("Resposta", key=chave, height=90, label_visibility="collapsed",
+                 placeholder="Escreve aqui a vossa resposta, em pares.")
+    with st.expander("💡 Dica"):
+        st.markdown(dica)
+
+
 def es_explorar(modo_prof):
     st.subheader("Parte 1 · Explora e responde")
     nota_objetivo(
@@ -178,8 +187,8 @@ def es_explorar(modo_prof):
         "Uma variação de tamanho, $\\mathrm{diag}(k,l)$, leva $(x,y)$ a $(kx,\\,ly)$; um segmento horizontal continua horizontal, com o comprimento multiplicado por $|k|$, "
         "e um segmento vertical continua vertical, com o comprimento multiplicado por $|l|$; a área fica multiplicada por $|k\\,l|$. Um fator negativo reflete a figura.",
         "Identificar, por observação (gráfico e valores numéricos) e testando com vários valores de $k$ e $l$, o que a transformação faz a "
-        "(a) cada ponto, (b) cada segmento horizontal e vertical e (c) à área. As opções erradas refletem ideias comuns (somar em vez de multiplicar, trocar $k$ e $l$, esquecer o módulo).",
-        "O aluno escolhe as três opções corretas depois de testar com diferentes valores de $k$ e $l$.",
+        "(a) cada ponto, (b) cada segmento horizontal e vertical e (c) à área. Erros comuns a procurar nas respostas: somar em vez de multiplicar, trocar $k$ e $l$, esquecer o módulo.",
+        "O aluno formula por escrito as três regras depois de testar com diferentes valores de $k$ e $l$.",
     )
     st.markdown(
         "Nesta parte aplicas uma **matriz de variação de tamanho** $M=\\begin{bmatrix}k&0\\\\0&l\\end{bmatrix}$ a **cada ponto** do triângulo $ABC$: "
@@ -192,7 +201,7 @@ def es_explorar(modo_prof):
     st.markdown(
         "Move $k$ e $l$, experimentando valores **iguais** e **diferentes**, **positivos** e **negativos**, maiores e menores do que 1 (em módulo). "
         "Escolhe em baixo **o que estás a investigar**: o gráfico e os dados mudam em conformidade. "
-        "Responde às três perguntas."
+        "Responde às três perguntas por palavras vossas; se precisarem, abram a dica."
     )
     foco = st.radio("A investigar", ["(a) Pontos", "(b) Segmentos", "(c) Área"], key="es_foco", horizontal=True)
     c1, c2 = st.columns([1, 1.4])
@@ -221,22 +230,25 @@ def es_explorar(modo_prof):
         mostrar(desenhar_variacao_tamanho(k, l, pontos=foco.startswith("(a)"),
                                        seg_h=foco.startswith("(b)"), seg_v=foco.startswith("(b)"),
                                        quadrado=foco.startswith("(c)")))
-    dica = "testa esta opção no gráfico, com outros valores de $k$ e $l$."
-    st.markdown("**(a) Pontos.** Compara as coordenadas de cada ponto com as da sua imagem. Que se faz a $(x,y)$ para obter a imagem?")
-    _passo("es_m1a", "Escolhe a opção correta:",
-           ["$(x+k,\\ y+l)$", "$(kx,\\ ly)$", "$(kx,\\ y)$", "$(lx,\\ ky)$"], "$(kx,\\ ly)$", dica, horizontal=False)
-    st.markdown("**(b) Segmentos.** Que acontece a um segmento horizontal (a base $AB$) e a um segmento vertical (a altura $CD$)?")
-    _passo("es_m1b", "Escolhe a opção correta:",
-           ["Continuam horizontal e vertical; o comprimento do horizontal fica multiplicado por $|k|$ e o do vertical por $|l|$.",
-            "Continuam horizontal e vertical; o comprimento do horizontal fica multiplicado por $|l|$ e o do vertical por $|k|$.",
-            "Continuam horizontal e vertical, mas os comprimentos não mudam.",
-            "Ficam oblíquos."],
-           "Continuam horizontal e vertical; o comprimento do horizontal fica multiplicado por $|k|$ e o do vertical por $|l|$.",
-           dica, horizontal=False)
-    st.markdown("**(c) Área.** Como se relaciona a área da imagem com a da figura original? *(O quadrado unitário pode ajudar.)*")
-    _passo("es_m1c", "Escolhe a opção correta:",
-           ["Fica multiplicada por $k+l$.", "Fica multiplicada por $k\\,l$.", "Fica multiplicada por $|k\\,l|$.", "Mantém-se."],
-           "Fica multiplicada por $|k\\,l|$.", dica, horizontal=False)
+    _pergunta_aberta(
+        "es_m1a",
+        "**(a) Pontos.** Compara as coordenadas de cada ponto com as da sua imagem. Que se faz a $(x,y)$ para obter a imagem?",
+        "Muda só $k$ (deixa $l=1$) e vê o que acontece às abcissas na tabela. Depois muda só $l$ e vê as ordenadas. "
+        "Faz o mesmo com valores negativos. Escreve o resultado como $(x,y)\\mapsto(\\ldots,\\ \\ldots)$.",
+    )
+    _pergunta_aberta(
+        "es_m1b",
+        "**(b) Segmentos.** Que acontece a um segmento horizontal (a base $AB$) e a um segmento vertical (a altura $CD$)?",
+        "Observa a direção dos segmentos a tracejado e os comprimentos de $AB$ e $CD$ antes e depois. "
+        "Qual deles muda quando só $k$ muda? E quando só $l$ muda? Experimenta também valores negativos: o comprimento pode ser negativo?",
+    )
+    _pergunta_aberta(
+        "es_m1c",
+        "**(c) Área.** Como se relaciona a área da imagem com a da figura original?",
+        "Observa o quadrado unitário: em que figura se transforma e quais são as suas dimensões? "
+        "Calcula a razão entre a área da imagem e a original para vários pares $(k,l)$ e procura o padrão. "
+        "Atenção aos valores negativos.",
+    )
     if modo_prof:
         st.info(
             "**Respostas esperadas:** (a) $(x,y)\\mapsto(k\\,x,\\ l\\,y)$: a abcissa multiplica por $k$ e a ordenada por $l$. "
