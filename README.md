@@ -14,7 +14,7 @@ O **Modo professor** (canto superior esquerdo da página, palavra-passe `ntem`) 
 
 ## Estrutura
 - **A · variação de tamanho**: tarefa curta em três partes:
-  1. *Explora e responde* (resposta múltipla): o que a transformação faz a pontos, segmentos e áreas.
+  1. *Explora e responde* : o que a transformação faz a pontos, segmentos e áreas.
   2. *Descobrir M*: determinar as entradas de uma matriz para levar o triângulo ao alvo.
   3. *Justificar*: textos com lacunas (menus) que justificam as regras da Parte 1.
 
